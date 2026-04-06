@@ -25,16 +25,9 @@
             --danger-color: #ff4444;
             --danger-bg: rgba(255, 68, 68, 0.1);
             --danger-border: rgba(255, 68, 68, 0.3);
-            --danger-glow: none;
-            --disabled-color: rgba(0, 0, 0, 0.2);
             --success-color: #00ff00;
             --success-bg: rgba(0, 255, 0, 0.1);
             --success-border: rgba(0, 255, 0, 0.3);
-            --success-glow: none;
-            --hit-color: #b000ff;
-            --hit-bg: rgba(176, 0, 255, 0.1);
-            --hit-border: rgba(176, 0, 255, 0.3);
-            --hit-glow: none;
         }
         
         /* CSS Переменные для Темной темы */
@@ -53,10 +46,9 @@
             --danger-color: #ff4444;
             --danger-bg: rgba(255, 68, 68, 0.1);
             --danger-border: rgba(255, 68, 68, 0.3);
-            --danger-glow: 0 0 15px rgba(255, 68, 68, 0.6);
-            --disabled-color: rgba(255, 255, 255, 0.2);
-            --success-glow: 0 0 15px rgba(0, 255, 0, 0.6);
-            --hit-glow: 0 0 15px rgba(176, 0, 255, 0.6);
+            --success-color: #00ff00;
+            --success-bg: rgba(0, 255, 0, 0.1);
+            --success-border: rgba(0, 255, 0, 0.3);
         }
         
         * {
@@ -170,7 +162,6 @@
             box-shadow: var(--glow);
         }
 
-        /* Добавил textarea для тикетов */
         .input-group input, .input-group textarea {
             flex: 1;
             background: transparent;
@@ -242,7 +233,7 @@
             gap: 6px;
             cursor: pointer;
             transition: all 0.3s;
-            width: 50%; /* Изменил на 50% так как кнопок всего две */
+            width: 50%; 
         }
 
         .tab-item i {
@@ -282,12 +273,13 @@
             color: var(--accent-color);
         }
 
+        /* Обновленные стили для статусов как на скриншоте */
         .status-badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             margin-bottom: 10px;
             letter-spacing: 1px;
@@ -295,15 +287,14 @@
         }
 
         .status-active {
-            background: transparent;
-            color: var(--accent-color);
-            border: 1px solid var(--accent-color);
-            box-shadow: var(--glow);
+            color: var(--success-color);
+            background-color: var(--success-bg);
+            border: 1px solid var(--success-border);
         }
 
         .status-inactive {
-            background: var(--danger-bg);
             color: var(--danger-color);
+            background-color: var(--danger-bg);
             border: 1px solid var(--danger-border);
         }
         
@@ -406,7 +397,7 @@
         }
         
         .ticket-status-wait {
-            color: #f39c12; /* Желтый для ожидания */
+            color: #f39c12; 
         }
     </style>
 </head>
@@ -552,13 +543,13 @@
         if (currentHour >= 10 && currentHour < 22) {
             badge.textContent = 'активна';
             badge.className = 'status-badge status-active';
-            badge.style.backgroundColor = 'transparent';
-            badge.style.color = 'var(--accent-color)';
+            // Очищаем инлайн стили, чтобы работал CSS
+            badge.removeAttribute('style');
         } else {
             badge.textContent = 'неактивна';
             badge.className = 'status-badge status-inactive';
-            badge.style.backgroundColor = 'var(--danger-bg)';
-            badge.style.color = 'var(--danger-color)';
+            // Очищаем инлайн стили, чтобы работал CSS
+            badge.removeAttribute('style');
         }
     }
 
