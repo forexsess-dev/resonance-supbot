@@ -10,567 +10,103 @@
     
     <style>
         :root {
-            --bg-color: #ffffff;
-            --card-bg: #f9f9f9;
-            --accent-color: #000000;
-            --text-main: #000000;
-            --text-muted: #666666;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --glow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --glow-strong: 0 6px 16px rgba(0, 0, 0, 0.12);
-            --glow-text: none;
-            --tab-bg: rgba(255, 255, 255, 0.95);
-            --overlay-bg: rgba(0, 0, 0, 0.03);
-            --danger-color: #ff4444;
-            --danger-bg: rgba(255, 68, 68, 0.1);
-            --danger-border: rgba(255, 68, 68, 0.3);
-            --success-color: #00ff00;
-            --success-bg: rgba(0, 255, 0, 0.1);
-            --success-border: rgba(0, 255, 0, 0.3);
+            --bg-color: #ffffff; --card-bg: #f9f9f9; --accent-color: #000000; --text-main: #000000;
+            --text-muted: #666666; --border-color: rgba(0, 0, 0, 0.1); --glow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --danger-color: #ff4444; --danger-bg: rgba(255, 68, 68, 0.1); --danger-border: rgba(255, 68, 68, 0.3);
+            --success-color: #00ff00; --success-bg: rgba(0, 255, 0, 0.1); --success-border: rgba(0, 255, 0, 0.3);
+            --tab-bg: rgba(255, 255, 255, 0.95); --overlay-bg: rgba(0, 0, 0, 0.03);
         }
-        
         body.dark-theme {
-            --bg-color: #000000;
-            --card-bg: #0a0a0a;
-            --accent-color: #ffffff;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --border-color: rgba(255, 255, 255, 0.2);
-            --glow: 0 0 15px rgba(255, 255, 255, 0.3);
-            --glow-strong: 0 0 25px rgba(255, 255, 255, 0.6);
-            --glow-text: 0 0 8px rgba(255, 255, 255, 0.8);
-            --tab-bg: rgba(0, 0, 0, 0.95);
-            --overlay-bg: rgba(255, 255, 255, 0.05);
-            --danger-color: #ff4444;
-            --danger-bg: rgba(255, 68, 68, 0.1);
-            --danger-border: rgba(255, 68, 68, 0.3);
-            --success-color: #00ff00;
-            --success-bg: rgba(0, 255, 0, 0.1);
-            --success-border: rgba(0, 255, 0, 0.3);
+            --bg-color: #000000; --card-bg: #0a0a0a; --accent-color: #ffffff; --text-main: #ffffff;
+            --text-muted: #888888; --border-color: rgba(255, 255, 255, 0.2); --glow: 0 0 15px rgba(255, 255, 255, 0.3);
+            --glow-strong: 0 0 25px rgba(255, 255, 255, 0.6); --glow-text: 0 0 8px rgba(255, 255, 255, 0.8);
+            --tab-bg: rgba(0, 0, 0, 0.95); --overlay-bg: rgba(255, 255, 255, 0.05);
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'JetBrains Mono', monospace; text-transform: lowercase !important; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
+        .app-container { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; }
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
         
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'JetBrains Mono', monospace;
-            text-transform: lowercase !important;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .global-header {
-            padding-bottom: 20px;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-        }
-
-        .app-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 20px 80px 20px;
-        }
-
-        .screen {
-            display: none;
-            animation: glitchFadeIn 0.3s ease;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes glitchFadeIn {
-            0% { opacity: 0; transform: scale(0.98); filter: blur(2px); }
-            50% { opacity: 0.5; filter: blur(1px); }
-            100% { opacity: 1; transform: scale(1); filter: blur(0); }
-        }
-
-        h1, h2, h3 {
-            font-weight: 700;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: -0.5px;
-        }
-
-        h2 {
-            text-shadow: var(--glow-text);
-        }
-
-        .text-muted {
-            color: var(--text-muted);
-            font-size: 13px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
-            position: relative;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 2px;
-            background: var(--accent-color);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            box-shadow: var(--glow);
-        }
-
-        .card:hover {
-            box-shadow: var(--glow);
-            border-color: var(--accent-color);
-        }
-
-        .card:hover::before {
-            opacity: 1;
-        }
-
-        .input-group {
-            display: flex;
-            background: transparent;
-            border-radius: 4px;
-            padding: 5px;
-            margin-top: 10px;
-            border: 1px solid var(--border-color);
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        .input-group:focus-within {
-            border-color: var(--accent-color);
-            box-shadow: var(--glow);
-        }
-
-        .input-group input, .input-group textarea, .input-group select {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            padding: 10px 15px;
-            font-size: 13px;
-            outline: none;
-            font-family: inherit;
-        }
+        h3 { font-weight: 700; margin-bottom: 15px; text-transform: uppercase; }
+        .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); position: relative; transition: box-shadow 0.3s; }
+        .card:hover { box-shadow: var(--glow); border-color: var(--accent-color); }
         
-        .input-group select {
-            appearance: none;
-            -webkit-appearance: none;
-        }
-
-        .input-group select option {
-            background-color: var(--card-bg);
-            color: var(--text-main);
-        }
-
-        .input-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        /* --- СТИЛИ ДЛЯ ОШИБОК ВАЛИДАЦИИ --- */
-        .req-label {
-            color: #8b0000; /* Тускло-красный по умолчанию */
-            font-size: 11px;
-            margin-top: 5px;
-            font-weight: 800;
-            display: none;
-        }
-
-        .pulse-error {
-            display: block;
-            color: #ff0000; /* Ярко-красный при пульсации */
-            animation: pulseRed 0.8s infinite alternate;
-        }
-
-        @keyframes pulseRed {
-            from { transform: scale(1); text-shadow: none; }
-            to { transform: scale(1.02); text-shadow: 0 0 8px #ff0000; }
-        }
-        /* ---------------------------------- */
-
-        .btn-icon {
-            background: transparent;
-            color: var(--accent-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            box-shadow: var(--glow);
-        }
-
-        .btn-icon:active {
-            transform: scale(0.95);
-        }
-
-        .btn-enter-chat {
-            color: var(--success-color);
-            border: 1px solid var(--success-color);
-        }
-
-        .btn-enter-chat:hover {
-            background: var(--success-bg);
-            color: var(--success-color);
-            box-shadow: var(--success-glow);
-        }
-
-        .btn-primary {
-            background: transparent;
-            color: var(--accent-color);
-            border: 2px solid var(--accent-color);
-            border-radius: 4px;
-            padding: 15px;
-            width: 100%;
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            box-shadow: var(--glow-strong);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--tab-bg);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 10px;
-            border-top: 1px solid var(--border-color);
-            z-index: 100;
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 11px;
-            text-transform: uppercase;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            flex: 1; 
-        }
-
-        .tab-item i {
-            font-size: 18px;
-            transition: transform 0.2s, text-shadow 0.2s;
-        }
-
-        .tab-item.active {
-            color: var(--accent-color);
-            font-weight: 700;
-        }
+        .input-group { display: flex; background: transparent; border-radius: 4px; padding: 5px; margin-top: 10px; border: 1px solid var(--border-color); transition: 0.3s; }
+        .input-group:focus-within { border-color: var(--accent-color); box-shadow: var(--glow); }
+        .input-group input, .input-group textarea, .input-group select { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px; font-size: 13px; outline: none; font-family: inherit; }
+        .input-group select option { background-color: var(--card-bg); color: var(--text-main); }
+        .input-group textarea { min-height: 80px; resize: none; }
         
-        .tab-item.active i {
-            transform: translateY(-2px);
-            text-shadow: var(--glow-text);
-        }
+        /* Умная пульсирующая ошибка */
+        .req-label { color: rgba(255, 68, 68, 0.4); font-size: 10px; margin-top: 5px; font-weight: 800; display: none; text-transform: uppercase; }
+        .req-label.pulse-error { display: block; color: #ff0000; animation: pulseError 0.8s infinite alternate; }
+        @keyframes pulseError { from { opacity: 0.4; transform: scale(1); } to { opacity: 1; transform: scale(1.02); text-shadow: 0 0 5px red; } }
 
-        .header-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: var(--glow-text);
-        }
-
-        .header-logo i {
-            color: var(--accent-color);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-
-        .status-active {
-            color: var(--success-color);
-            background-color: var(--success-bg);
-            border: 1px solid var(--success-color);
-            box-shadow: var(--success-glow);
-        }
-
-        .status-inactive {
-            color: var(--danger-color);
-            background-color: var(--danger-bg);
-            border: 1px solid var(--danger-color);
-            box-shadow: var(--danger-glow);
-        }
+        .btn-primary { background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); border-radius: 4px; padding: 15px; width: 100%; font-size: 14px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-primary:hover { background: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-strong); }
+        .btn-primary:active { transform: scale(0.98); }
         
-        .profile-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            margin-bottom: 10px;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid; transition: 0.3s; }
+        .status-active { color: var(--success-color); background: var(--success-bg); border-color: var(--success-border); box-shadow: var(--success-glow); }
+        .status-inactive { color: var(--danger-color); background: var(--danger-bg); border-color: var(--danger-border); box-shadow: var(--danger-glow); }
 
-        .profile-link:hover {
-            background: var(--overlay-bg);
-            border-color: var(--accent-color);
-            box-shadow: var(--glow);
-        }
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--tab-bg); backdrop-filter: blur(10px); display: flex; border-top: 1px solid var(--border-color); padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 15px 0; color: var(--text-muted); font-size: 10px; gap: 5px; cursor: pointer; transition: 0.3s; }
+        .tab-item.active { color: var(--accent-color); font-weight: 800; }
+        .tab-item.active i { transform: translateY(-2px); text-shadow: var(--glow-text); }
+        .tab-item i { font-size: 18px; transition: 0.2s; }
 
-        .profile-link-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .profile-link-left i {
-            color: var(--accent-color);
-            font-size: 16px;
-            width: 24px;
-            text-align: center;
-            text-shadow: var(--glow-text);
-        }
-
-        .toast {
-            position: fixed;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: var(--accent-color);
-            border: 1px solid var(--accent-color);
-            color: var(--bg-color);
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: var(--glow-strong);
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .cursor-blink {
-            display: inline-block;
-            width: 8px;
-            height: 18px;
-            background-color: var(--accent-color);
-            vertical-align: middle;
-            margin-left: 5px;
-            animation: blink 1s step-end infinite;
-            box-shadow: var(--glow);
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        
         /* Списки тикетов */
-        .ticket-item {
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background: var(--overlay-bg);
-            transition: border-color 0.3s;
-        }
-
-        .ticket-item:hover {
-            border-color: var(--accent-color);
-        }
+        .ticket-item { padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; background: var(--overlay-bg); transition: 0.3s; }
+        .ticket-item:hover { border-color: var(--accent-color); }
+        .ticket-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 5px; }
+        .ticket-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        
-        .ticket-id { color: var(--text-main); font-weight: 800; }
-        .ticket-topic { font-size: 12px; margin-bottom: 5px; color: var(--accent-color); }
-        .ticket-msg-preview { color: var(--text-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ticket-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .btn-enter-chat { color: var(--success-color); border: 1px solid var(--success-color); border-radius: 4px; padding: 5px 12px; font-size: 12px; background: transparent; cursor: pointer; transition: 0.3s; }
+        .btn-enter-chat:hover { background: var(--success-bg); box-shadow: var(--success-glow); }
+        .btn-icon { background: transparent; border: none; color: var(--accent-color); font-size: 18px; cursor: pointer; transition: 0.2s; }
+        .btn-icon:hover { text-shadow: var(--glow-text); }
 
         /* Чат */
-        .chat-area {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
-            max-height: 50vh;
-            overflow-y: auto;
-            padding-right: 5px;
-            padding-bottom: 20px;
-        }
-
-        .chat-bubble {
-            max-width: 85%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 13px;
-            position: relative;
-            line-height: 1.4;
-        }
-
-        .chat-user {
-            align-self: flex-end;
-            background: var(--overlay-bg);
-            border: 1px solid var(--border-color);
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-admin {
-            align-self: flex-start;
-            background: transparent;
-            border: 1px solid var(--accent-color);
-            color: var(--text-main);
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-time {
-            font-size: 9px;
-            color: var(--text-muted);
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .support-online-status {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--success-color);
-            text-transform: uppercase;
-            text-shadow: var(--success-glow);
-            display: none;
-        }
-
-        /* Модалки */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-color);
-            z-index: 2000;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 80px;
-            animation: glitchFadeIn 0.3s ease;
-        }
-        .modal.active { display: block; }
-        .modal-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-top: 10px; }
-        .modal-header h3 { margin-bottom: 0; }
-        .modal-content { color: var(--text-muted); font-size: 12px; line-height: 1.6; }
-        .modal-content h4 { color: var(--text-main); margin-top: 15px; margin-bottom: 5px; font-size: 14px; text-transform: uppercase; }
-        .modal-content p { margin-bottom: 10px; }
-        .modal-content ul { padding-left: 20px; margin-bottom: 10px; }
-        .modal-content li { margin-bottom: 5px; }
+        .chat-area { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; padding-bottom: 20px; }
+        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 8px; font-size: 13px; position: relative; line-height: 1.4; }
+        .msg-user { align-self: flex-end; background: var(--overlay-bg); border: 1px solid var(--border-color); border-bottom-right-radius: 2px; }
+        .msg-support { align-self: flex-start; border: 1px solid var(--accent-color); border-bottom-left-radius: 2px; }
+        .msg-time { font-size: 9px; color: var(--text-muted); margin-top: 5px; text-align: right; }
+        .support-online { color: var(--success-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--success-color); display: none; text-transform: uppercase; }
+        
+        .header-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; text-transform: uppercase; text-shadow: var(--glow-text); }
+        .cursor-blink { display: inline-block; width: 8px; height: 18px; background: var(--accent-color); margin-left: 5px; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        .toast { position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent-color); border: 1px solid var(--accent-color); color: var(--bg-color); padding: 10px 20px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--glow-strong); transition: transform 0.3s; z-index: 1000; pointer-events: none; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
-<body>
+<body class="dark-theme">
 
-    <div id="toast" class="toast">выполнено!</div>
+    <div id="toast" class="toast">сообщение отправлено!</div>
 
     <div class="app-container">
         
-        <div class="global-header">
-            <span>protect by resonance</span>
-        </div>
-
-        <div id="screen-tickets" class="screen active">
-            
-            <div class="header-top-row">
-                <div class="header-logo">
-                    <i class="fa-solid fa-headset"></i>
-                    <span>support<span class="cursor-blink"></span></span>
-                </div>
+        <div id="screen-main" class="screen active">
+            <div class="header-logo" style="margin-bottom: 20px;">
+                <i class="fa-solid fa-headset"></i><span>resonance support<span class="cursor-blink"></span></span>
             </div>
 
             <div class="card">
                 <h3>статус поддержки</h3>
-                <div class="status-badge" id="support-status-badge">загрузка...</div>
-                <p class="text-muted">рабочие часы: 10:00 - 22:00 (МСК)</p>
+                <div id="msk-status" class="status-badge status-inactive">загрузка...</div>
+                <p class="text-muted" style="margin-top: 5px;">10:00 - 22:00 (МСК)</p>
             </div>
 
             <div class="card">
-                <h3>создать обращение</h3>
-                
+                <h3>новое обращение</h3>
                 <div class="input-group">
-                    <select id="topic-select" onchange="toggleCustomTopic()">
-                        <option value="" disabled selected>выберите тему проблемы...</option>
+                    <select id="topic-select" onchange="handleTopicChange()">
+                        <option value="" disabled selected>выберите тему...</option>
                         <option value="Проблемы с подключением">проблемы с подключением</option>
                         <option value="Проблема с добавлением подписки">проблема с добавлением подписки</option>
                         <option value="Не подключается VPN">не подключается vpn</option>
@@ -578,437 +114,232 @@
                     </select>
                 </div>
                 
-                <div id="custom-topic-container" style="display: none; flex-direction: column;">
-                    <div class="input-group">
-                        <input type="text" id="custom-topic-input" placeholder="впишите вашу тему...">
-                    </div>
-                    <div id="error-topic" class="req-label">* данное поле обязательно к заполнению</div>
+                <div id="custom-topic-box" style="display: none; margin-top: 10px;">
+                    <div class="input-group"><input type="text" id="custom-topic-input" placeholder="в чем именно проблема?"></div>
+                    <div id="err-topic" class="req-label">* данное поле обязательно к заполнению</div>
                 </div>
 
-                <div class="input-group" style="margin-top: 15px;">
-                    <textarea id="ticket-text" placeholder="опишите проблему максимально подробно..."></textarea>
+                <div class="input-group" style="margin-top: 10px;">
+                    <textarea id="ticket-msg" placeholder="опишите ситуацию подробно..."></textarea>
                 </div>
-                <div id="error-msg" class="req-label">* данное поле обязательно к заполнению</div>
-
-                <button class="btn-primary" onclick="createTicket()">создать тикет</button>
+                <div id="err-msg" class="req-label">* данное поле обязательно к заполнению</div>
+                
+                <button class="btn-primary" onclick="submitTicket()">создать тикет</button>
             </div>
 
-            <div class="card">
-                <h3>мои тикеты</h3>
-                <div id="user-tickets-list">
-                    <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
-                </div>
+            <h3>мои тикеты</h3>
+            <div id="user-tickets-list">
+                <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
             </div>
         </div>
 
         <div id="screen-chat" class="screen">
-            <div class="header-top-row" style="margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <button class="btn-icon" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
-                    <div class="header-logo" style="margin-bottom: 0;">
-                        <span>тикет <span id="chat-ticket-id">#000</span></span>
+                    <div>
+                        <h3 id="chat-ticket-id" style="margin:0; text-transform: none;">#000</h3>
+                        <div id="chat-ticket-topic" style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Тема: ...</div>
                     </div>
                 </div>
-                <div id="chat-support-status" class="support-online-status">support: online</div>
+                <div id="support-online-status" class="support-online">support: online</div>
             </div>
             
-            <p class="text-muted" id="chat-ticket-topic" style="font-size: 11px; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Тема: ...</p>
-
-            <div class="chat-area" id="chat-messages">
-                </div>
-
-            <div style="margin-top: 20px;">
+            <div id="chat-messages" class="chat-area"></div>
+            
+            <div style="margin-top: 10px;">
                 <div class="input-group">
-                    <textarea id="chat-reply-text" placeholder="написать ответ..." style="min-height: 50px;"></textarea>
+                    <textarea id="chat-input" placeholder="сообщение..." style="min-height: 50px;"></textarea>
                 </div>
                 <button class="btn-primary" onclick="sendReply()">отправить</button>
             </div>
         </div>
 
         <div id="screen-admin" class="screen">
-            <div class="header-top-row">
-                <div class="header-logo">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>admin panel<span class="cursor-blink"></span></span>
-                </div>
+            <div class="header-logo" style="margin-bottom: 20px;">
+                <i class="fa-solid fa-shield-halved"></i><span>admin panel<span class="cursor-blink"></span></span>
             </div>
-
+            
             <div class="card">
-                <h3>поиск и фильтры</h3>
-                <div class="input-group">
-                    <input type="text" id="admin-search" placeholder="поиск по номеру (#123) или тексту" oninput="loadAdminTickets()">
-                </div>
+                <h3>фильтры</h3>
+                <div class="input-group"><input type="text" id="admin-search" placeholder="поиск по #номеру или тексту..." oninput="loadAdminTickets()"></div>
                 <div class="input-group">
                     <select id="admin-filter" onchange="loadAdminTickets()">
                         <option value="all">все темы</option>
-                        <option value="Проблемы с подключением">проблемы с подключением</option>
-                        <option value="Проблема с добавлением подписки">проблема с добавлением подписки</option>
-                        <option value="Не подключается VPN">не подключается vpn</option>
+                        <option value="Проблемы с подключением">подключение</option>
+                        <option value="Проблема с добавлением подписки">подписка</option>
+                        <option value="Не подключается VPN">vpn</option>
                         <option value="Другое">другое</option>
                     </select>
                 </div>
             </div>
 
-            <div class="card">
-                <h3>все обращения</h3>
-                <div id="admin-tickets-list">
-                    <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
-                </div>
+            <h3>все обращения</h3>
+            <div id="admin-tickets-list">
+                <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
             </div>
         </div>
 
-        <div id="screen-instructions" class="screen">
-            <div class="header-top-row">
-                <div class="header-logo">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>база знаний<span class="cursor-blink"></span></span>
-                </div>
-            </div>
-            
-            <p class="text-muted" style="margin-bottom: 20px;">выберите нужный раздел для получения помощи</p>
-
-            <a href="#" class="profile-link">
-                <div class="profile-link-left">
-                    <i class="fa-solid fa-mobile-screen"></i>
-                    <span>подключение на iOS / Android</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-muted"></i>
-            </a>
-
-            <a href="#" class="profile-link">
-                <div class="profile-link-left">
-                    <i class="fa-solid fa-desktop"></i>
-                    <span>подключение на Windows / Mac</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-muted"></i>
-            </a>
-            
-            <h3 style="margin-top: 30px; margin-bottom: 15px;">соглашения</h3>
-            
-            <a href="#" onclick="showModal('privacy')" class="profile-link">
-                <div class="profile-link-left">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>политика конфиденциальности</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-muted"></i>
-            </a>
-
-            <a href="#" onclick="showModal('terms')" class="profile-link">
-                <div class="profile-link-left">
-                    <i class="fa-solid fa-file-signature"></i>
-                    <span>пользовательское соглашение</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-muted"></i>
-            </a>
-        </div>
-
-    </div>
-
-    <div id="modal-privacy" class="modal">
-        <div class="modal-header">
-            <button class="btn-icon" onclick="closeModal('privacy')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3>политика конфиденциальности</h3>
-        </div>
-        <div class="modal-content">
-            <h4>1. Общие положения</h4>
-            <p>1.1. Настоящая Политика конфиденциальности (далее — «Политика») регулирует порядок обработки и защиты информации, которую Пользователь передаёт при использовании сервиса resonance (далее — «Сервис»).</p>
-            <p>1.2. Используя Сервис, Пользователь подтверждает своё согласие с условиями Политики. Если Пользователь не согласен с условиями — он обязан прекратить использование Сервиса.</p>
-            
-            <h4>2. Сбор информации</h4>
-            <p>2.1. Сервис может собирать следующие типы данных:</p>
-            <ul>
-                <li>идентификаторы аккаунта (логин, ID, никнейм и т.п.);</li>
-                <li>техническую информацию (IP-адрес, данные о браузере, устройстве и операционной системе);</li>
-                <li>историю взаимодействий с Сервисом.</li>
-            </ul>
-            <p>2.2. Сервис не требует от Пользователя предоставления паспортных данных, документов, фотографий или другой личной информации, кроме минимально необходимой для работы.</p>
-
-            <h4>3. Использование информации</h4>
-            <p>3.1. Сервис может использовать полученную информацию исключительно для:</p>
-            <ul>
-                <li>обеспечения работы функционала;</li>
-                <li>связи с Пользователем (в том числе для уведомлений и поддержки);</li>
-                <li>анализа и улучшения работы Сервиса.</li>
-            </ul>
-
-            <h4>4. Передача информации третьим лицам</h4>
-            <p>4.1. Администрация не передаёт полученные данные третьим лицам, за исключением случаев:</p>
-            <ul>
-                <li>если это требуется по закону;</li>
-                <li>если это необходимо для исполнения обязательств перед Пользователем (например, при работе с платёжными системами);</li>
-                <li>если Пользователь сам дал на это согласие.</li>
-            </ul>
-
-            <h4>5. Хранение и защита данных</h4>
-            <p>5.1. Данные хранятся в течение срока, необходимого для достижения целей обработки.</p>
-            <p>5.2. Администрация принимает разумные меры для защиты данных, но не гарантирует абсолютную безопасность информации при передаче через интернет.</p>
-
-            <h4>6. Отказ от ответственности</h4>
-            <p>6.1. Пользователь понимает и соглашается, что передача информации через интернет всегда сопряжена с рисками.</p>
-            <p>6.2. Администрация не несёт ответственности за утрату, кражу или раскрытие данных, если это произошло по вине третьих лиц или самого Пользователя.</p>
-
-            <h4>7. Изменения в Политике</h4>
-            <p>7.1. Администрация вправе изменять условия Политики без предварительного уведомления.</p>
-            <p>7.2. Продолжение использования Сервиса после внесения изменений означает согласие Пользователя с новой редакцией Политики.</p>
-        </div> 
-    </div>
-
-    <div id="modal-terms" class="modal">
-        <div class="modal-header">
-            <button class="btn-icon" onclick="closeModal('terms')"><i class="fa-solid fa-arrow-left"></i></button>
-            <h3>пользовательское соглашение</h3>
-        </div>
-        <div class="modal-content">
-            <h4>1. Общие положения</h4>
-            <p>1.1. Настоящее Пользовательское соглашение (далее — «Соглашение») регулирует порядок использования онлайн-сервиса resonance (далее — «Сервис»), предоставляемого Администрацией.</p>
-            <p>1.2. Используя Сервис, включая запуск бота, регистрацию, оплату услуг или получение доступа к материалам, Пользователь подтверждает, что полностью ознакомился с условиями настоящего Соглашения и принимает их в полном объёме.</p>
-            <p>1.3. В случае несогласия с условиями Соглашения Пользователь обязан прекратить использование Сервиса.</p>
-
-            <h4>2. Характер услуг и цифровых товаров</h4>
-            <p>2.1. Сервис предоставляет цифровые товары и услуги нематериального характера, включая, но не ограничиваясь: информационные материалы, обучающие программы, консультации, цифровые продукты и сервисные услуги.</p>
-            <p>2.2. Материалы, предоставляемые через Сервис, могут включать:</p>
-            <ul>
-                <li>информацию из открытых источников;</li>
-                <li>авторские материалы Администрации и/или третьих лиц;</li>
-                <li>аналитические обзоры, подборки, рекомендации, структурированные данные.</li>
-            </ul>
-            <p>2.3. Пользователь осознаёт и соглашается, что ценность цифровых товаров и услуг Сервиса заключается в систематизации, анализе, форме подачи, сопровождении, поддержке и обновлениях, а не в эксклюзивности отдельных фрагментов информации.</p>
-            <p>2.4. Сервис не заявляет и не гарантирует уникальность, исключительность или недоступность отдельных элементов материалов вне Сервиса.</p>
-
-            <h4>3. Отказ от гарантий и ответственности</h4>
-            <p>3.1. Сервис предоставляется на условиях «AS IS» («как есть»).</p>
-            <p>3.2. Администрация не гарантирует:</p>
-            <ul>
-                <li>соответствие Сервиса ожиданиям Пользователя;</li>
-                <li>достижение каких-либо финансовых, коммерческих, профессиональных или иных результатов;</li>
-                <li>бесперебойную и безошибочную работу Сервиса.</li>
-            </ul>
-            <p>3.3. Администрация не несёт ответственности за: любые прямые или косвенные убытки, включая упущенную выгоду; последствия применения Пользователем полученных материалов; действия или бездействие третьих лиц; временные технические сбои и ограничения доступа.</p>
-            <p>3.4. Все решения о применении материалов, рекомендаций и услуг принимаются Пользователем самостоятельно и на его риск.</p>
-
-            <h4>4. Законность использования</h4>
-            <p>4.1. Сервис не предназначен для поощрения, организации или содействия противоправной деятельности.</p>
-            <p>4.2. Пользователь обязуется использовать Сервис исключительно в рамках применимого законодательства и правил третьих сторон.</p>
-            <p>4.3. Ответственность за законность использования материалов и услуг Сервиса полностью возлагается на Пользователя.</p>
-
-            <h4>5. Интеллектуальная собственность</h4>
-            <p>5.1. Все материалы, размещённые в Сервисе, охраняются законодательством об интеллектуальной собственности.</p>
-            <p>5.2. Пользователю запрещается копировать, распространять, перепродавать, передавать третьим лицам или иным образом использовать материалы Сервиса без разрешения правообладателя.</p>
-            <p>5.3. Нарушение прав интеллектуальной собственности может повлечь ограничение доступа к Сервису без компенсации.</p>
-
-            <h4>6. Ограничение доступа</h4>
-            <p>6.1. Администрация вправе приостановить или ограничить доступ Пользователя к Сервису в случае: нарушения условий настоящего Соглашения; выявления злоупотреблений; требований законодательства или платёжных провайдеров.</p>
-            <p>6.2. Ограничение доступа не освобождает Пользователя от обязательств, возникших ранее.</p>
-            <p>6.3. Администрация оставляет за собой право отказывать в обслуживании Пользователям, чьи действия могут создавать повышенные риски для Сервиса, платёжных провайдеров или третьих лиц.</p>
-
-            <h4>7. Платежи и возвраты</h4>
-            <p>7.1. Оплата услуг и цифровых товаров производится на условиях, указанных в Сервисе до момента оплаты.</p>
-            <p>7.2. В связи с нематериальным характером цифровых товаров и услуг, возврат денежных средств после предоставления доступа не осуществляется, за исключением случаев, указанных ниже.</p>
-            <p>7.3. Возврат средств возможен только если: услуга не была оказана по технической вине Сервиса; доступ к цифровому товару фактически не был предоставлен.</p>
-            <p>7.4. Для рассмотрения вопроса о возврате Пользователь обязан обратиться в службу поддержки в течение 24 часов с момента оплаты.</p>
-            <p>7.5. Решение о возврате принимается Администрацией индивидуально.</p>
-            <p>7.6. Пользователь подтверждает, что обязуется не инициировать возврат платежа (chargeback) через платёжные системы без предварительного обращения в службу поддержки Сервиса.</p>
-
-            <h4>8. Конфиденциальность</h4>
-            <p>8.1. Администрация может собирать минимально необходимые технические данные для обеспечения работы Сервиса.</p>
-            <p>8.2. Администрация принимает разумные меры для защиты данных, однако не гарантирует абсолютную безопасность передаваемой информации.</p>
-
-            <h4>9. Изменение условий</h4>
-            <p>9.1. Администрация вправе вносить изменения в настоящее Соглашение.</p>
-            <p>9.2. Актуальная версия Соглашения публикуется в Сервисе.</p>
-            <p>9.3. Продолжение использования Сервиса означает согласие Пользователя с обновлёнными условиями.</p>
-
-            <h4>10. Контактная информация</h4>
-            <p>10.1. По всем вопросам Пользователь может обратиться в службу поддержки через форму в самом боте.</p>
-            
-            <p><i>Используя Сервис (в том числе запуская бота и/или вводя команду /start), Пользователь подтверждает, что ознакомлен с настоящим Соглашением и принимает его условия в полном объёме.</i></p>
-        </div>
     </div>
 
     <div class="tab-bar">
-        <div class="tab-item active" id="tab-tickets" onclick="switchTab('tickets', this)">
-            <i class="fa-solid fa-ticket"></i>
-            <span>мои тикеты</span>
-        </div>
-        <div class="tab-item" id="tab-instructions" onclick="switchTab('instructions', this)">
-            <i class="fa-solid fa-book"></i>
-            <span>инструкции</span>
-        </div>
-        <div class="tab-item" id="tab-admin" onclick="switchTab('admin', this)" style="display: none;">
-            <i class="fa-solid fa-user-shield"></i>
-            <span>админ</span>
-        </div>
+        <div class="tab-item active" id="tab-tickets" onclick="switchTab('main', this)"><i class="fa-solid fa-ticket"></i><span>тикеты</span></div>
+        <div class="tab-item" id="tab-admin" onclick="switchTab('admin', this)" style="display: none;"><i class="fa-solid fa-user-shield"></i><span>админ</span></div>
     </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    const API_URL = "http://127.0.0.1:8081/support_api"; // Локальный адрес для теста
+    // ЛОКАЛЬНЫЙ АДРЕС БЕКЕНДА
+    const API_URL = "http://127.0.0.1:8081/support_api"; 
     const ADMIN_ID = 1054483124; 
     
     const urlParams = new URLSearchParams(window.location.search);
+    // Берем ID из Telegram, либо из ссылки (для тестов)
     const currentUserId = parseInt(tg.initDataUnsafe?.user?.id || urlParams.get('id') || '0');
     
     let currentActiveTicketId = null;
     let chatInterval = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-        tg.ready();
-        tg.expand();
-
+        tg.ready(); tg.expand();
         if (tg.colorScheme === 'dark') {
             document.body.classList.add('dark-theme');
-            tg.setHeaderColor('#000000');
-            tg.setBackgroundColor('#000000');
+            tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
         }
-        
-        // Показываем админ панель
         if (currentUserId === ADMIN_ID) {
             document.getElementById('tab-admin').style.display = 'flex';
         }
-
+        
         checkSupportTime();
         setInterval(checkSupportTime, 60000);
         loadUserTickets();
     });
 
-    // --- ЛОГИКА ВРЕМЕНИ МСК ---
+    // Расчет времени МСК
     function checkSupportTime() {
         const badge = document.getElementById('msk-status');
         const now = new Date();
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const mskTime = new Date(utc + (3600000 * 3));
-        const currentHour = mskTime.getHours();
+        const hour = mskTime.getHours();
 
-        if (currentHour >= 10 && currentHour < 22) {
-            badge.textContent = 'активна';
-            badge.className = 'status-badge status-active';
+        if (hour >= 10 && hour < 22) {
+            badge.textContent = 'активна'; badge.className = 'status-badge status-active';
         } else {
-            badge.textContent = 'неактивна';
-            badge.className = 'status-badge status-inactive';
+            badge.textContent = 'неактивна'; badge.className = 'status-badge status-inactive';
         }
     }
 
-    // --- СОЗДАНИЕ ТИКЕТА С УМНОЙ ОШИБКОЙ ---
-    function toggleCustomTopic() {
+    // Выбор темы
+    function handleTopicChange() {
         const select = document.getElementById('topic-select');
         const customBox = document.getElementById('custom-topic-box');
         if (select.value === 'Другое') {
             customBox.style.display = 'block';
         } else {
             customBox.style.display = 'none';
-            document.getElementById('error-topic').style.display = 'none';
-            document.getElementById('error-topic').classList.remove('pulse-error');
+            document.getElementById('err-topic').classList.remove('pulse-error');
         }
     }
 
+    // Пульсация ошибки
     function triggerPulseError(elementId) {
         const el = document.getElementById(elementId);
-        el.style.display = 'block';
         el.classList.remove('pulse-error');
-        void el.offsetWidth; // Сброс анимации
+        void el.offsetWidth; // Сброс анимации CSS
         el.classList.add('pulse-error');
         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
     }
 
-    async function createTicket() {
+    // Создать тикет
+    async function submitTicket() {
+        if(currentUserId === 0) return alert("ID пользователя не найден. Добавьте ?id= В ссылку.");
+
         const select = document.getElementById('topic-select');
         const customInput = document.getElementById('custom-topic-input');
-        const textArea = document.getElementById('ticket-text');
+        const textArea = document.getElementById('ticket-msg');
         
         let finalTopic = select.value;
-        if (!finalTopic) return showToast('Выберите тему!');
+        if (!finalTopic) return showToast('выберите тему');
         
         if (finalTopic === 'Другое') {
             finalTopic = customInput.value.trim();
-            if (!finalTopic) return triggerPulseError('error-topic');
-            document.getElementById('error-topic').style.display = 'none';
+            if (!finalTopic) return triggerPulseError('err-topic');
+            document.getElementById('err-topic').classList.remove('pulse-error');
         }
         
         const message = textArea.value.trim();
-        if (!message) return triggerPulseError('error-msg');
-        document.getElementById('error-msg').style.display = 'none';
+        if (!message) return triggerPulseError('err-msg');
+        document.getElementById('err-msg').classList.remove('pulse-error');
 
         try {
             const res = await fetch(`${API_URL}/create`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    user_id: currentUserId,
-                    topic: finalTopic,
-                    message: message
-                })
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: currentUserId, topic: finalTopic, message: message })
             });
+            if(!res.ok) throw new Error();
             const data = await res.json();
             
-            showToast('тикет создан!');
+            showToast('тикет создан');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             
-            select.value = '';
-            customInput.value = '';
-            textArea.value = '';
-            toggleCustomTopic();
-            
-            loadUserTickets();
-            openChat(data.ticket_id, finalTopic);
+            select.value = ''; customInput.value = ''; textArea.value = ''; handleTopicChange();
+            loadUserTickets(); openChat(data.ticket_id, finalTopic);
         } catch (e) {
             showToast('ошибка сервера');
         }
     }
 
-    // --- СПИСКИ ТИКЕТОВ ---
+    // Загрузка тикетов ЮЗЕРА
     async function loadUserTickets() {
-        if (currentUserId === 0) return;
+        const container = document.getElementById('user-tickets-list');
+        if (currentUserId === 0) return container.innerHTML = '<p class="text-muted" style="text-align: center;">Для тестов: добавьте ?id=123 в URL</p>';
         try {
             const res = await fetch(`${API_URL}/user_tickets/${currentUserId}`);
-            const tickets = await res.json();
-            renderTicketsList(tickets, 'user-tickets-list', false);
-        } catch (e) { console.error(e); }
-    }
-
-    async function loadAdminTickets() {
-        const searchQuery = document.getElementById('admin-search').value.toLowerCase();
-        const filterTopic = document.getElementById('admin-filter').value;
-        
-        try {
-            const res = await fetch(`${API_URL}/admin_tickets?search=${encodeURIComponent(searchQuery)}&filter=${encodeURIComponent(filterTopic)}`);
-            const tickets = await res.json();
-            renderTicketsList(tickets, 'admin-tickets-list', true);
-        } catch (e) { console.error(e); }
-    }
-
-    function renderTicketsList(tickets, containerId, isAdmin) {
-        const container = document.getElementById(containerId);
-        if (tickets.length === 0) {
-            container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px 0;">список пуст</p>';
-            return;
+            if(!res.ok) throw new Error();
+            renderTickets(await res.json(), 'user-tickets-list', false);
+        } catch (e) { 
+            container.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-weight: bold;">ошибка подключения к серверу</p>'; 
         }
+    }
 
+    // Загрузка тикетов АДМИНА
+    async function loadAdminTickets() {
+        const q = document.getElementById('admin-search').value.toLowerCase();
+        const f = document.getElementById('admin-filter').value;
+        const container = document.getElementById('admin-tickets-list');
+        try {
+            const res = await fetch(`${API_URL}/admin_tickets?search=${encodeURIComponent(q)}&filter=${encodeURIComponent(f)}`);
+            if(!res.ok) throw new Error();
+            renderTickets(await res.json(), 'admin-tickets-list', true);
+        } catch (e) { 
+            container.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-weight: bold;">ошибка сервера</p>'; 
+        }
+    }
+
+    // Отрисовка списка
+    function renderTickets(tickets, containerId, isAdmin) {
+        const container = document.getElementById(containerId);
+        if (tickets.length === 0) return container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px 0;">список пуст</p>';
         container.innerHTML = tickets.map(t => {
             const date = new Date(t.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             let actions = `<button class="btn-icon" onclick="openChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-eye"></i></button>`;
-            
-            if (isAdmin) {
-                actions += `<button class="btn-icon btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-arrow-right-to-bracket"></i></button>`;
-            }
-
+            if (isAdmin) actions += `<button class="btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> войти</button>`;
             return `
             <div class="ticket-item">
-                <div class="ticket-header">
-                    <span class="ticket-id">#${t.id}</span>
-                    <span class="text-muted" style="font-weight: normal;">${date}</span>
-                </div>
-                <div class="ticket-topic">${t.topic}</div>
-                <div class="ticket-msg-preview">${t.preview || '...'}</div>
-                <div class="ticket-actions">${actions}</div>
+                <div class="ticket-header"><span style="color:var(--text-main);">#${t.id}</span><span style="font-weight:normal;color:var(--text-muted);">${date}</span></div>
+                <div style="font-size: 11px; margin-bottom: 5px; color: var(--accent-color);">${t.topic}</div>
+                <div class="ticket-preview">${t.preview || '...'}</div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">${actions}</div>
             </div>`;
         }).join('');
     }
 
-    // --- ЛОГИКА ЧАТА ---
-    async function openChat(ticketId, topic) {
-        currentActiveTicketId = ticketId;
-        document.getElementById('chat-ticket-id').innerText = '#' + ticketId;
-        document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
+    // Открыть чат
+    async function openChat(id, topic) {
+        currentActiveTicketId = id;
+        document.getElementById('chat-ticket-id').innerText = '#' + id;
+        if(topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
         
         switchTab('chat', null);
         await refreshChat();
@@ -1017,99 +348,81 @@
         chatInterval = setInterval(refreshChat, 3000);
     }
 
-    async function adminEnterChat(ticketId, topic) {
-        await fetch(`${API_URL}/admin_enter/${ticketId}`, {method: 'POST'});
-        openChat(ticketId, topic);
+    // Админ входит в чат
+    async function adminEnterChat(id, topic) {
+        try {
+            await fetch(`${API_URL}/admin_enter/${id}`, {method: 'POST'});
+            openChat(id, topic);
+        } catch (e) { showToast('ошибка'); }
     }
 
+    // Обновление чата
     async function refreshChat() {
         if (!currentActiveTicketId) return;
         try {
             const res = await fetch(`${API_URL}/chat/${currentActiveTicketId}`);
+            if(!res.ok) throw new Error();
             const data = await res.json();
             
-            const statusEl = document.getElementById('chat-support-status');
-            if (currentUserId !== ADMIN_ID && data.admin_online) {
-                statusEl.style.display = 'block';
-            } else {
-                statusEl.style.display = 'none';
-            }
-
+            if(data.topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + data.topic;
+            
+            // Если мы не админ, но админ в чате - показываем статус
+            document.getElementById('support-online-status').style.display = (currentUserId !== ADMIN_ID && data.admin_online) ? 'block' : 'none';
+            
             const container = document.getElementById('chat-messages');
+            
+            // Проверяем нужно ли скроллить вниз (если пришли новые сообщения)
+            const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+
             container.innerHTML = data.messages.map(m => {
                 const isMine = m.sender_id === currentUserId;
                 const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const bubbleClass = isMine ? 'msg-user' : 'msg-support';
                 return `
-                <div class="msg-bubble ${bubbleClass}">
-                    ${m.text}
-                    <div class="msg-time">${time}</div>
+                <div class="msg-bubble ${isMine ? 'msg-user' : 'msg-support'}">
+                    ${m.text}<div class="msg-time">${time}</div>
                 </div>`;
             }).join('');
             
-            container.scrollTop = container.scrollHeight;
+            if (isAtBottom) container.scrollTop = container.scrollHeight;
         } catch (e) { console.error(e); }
     }
 
+    // Отправка ответа
     async function sendReply() {
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
         if (!text) return;
-
         try {
-            await fetch(`${API_URL}/reply`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    ticket_id: currentActiveTicketId,
-                    sender_id: currentUserId,
-                    text: text
-                })
+            await fetch(`${API_URL}/reply`, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ ticket_id: currentActiveTicketId, sender_id: currentUserId, text: text }) 
             });
-            input.value = '';
-            refreshChat();
+            input.value = ''; 
+            await refreshChat();
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         } catch (e) { showToast('ошибка отправки'); }
     }
 
-    // --- НАВИГАЦИЯ ---
+    // Навигация
     function goBack() {
         if(chatInterval) clearInterval(chatInterval);
         currentActiveTicketId = null;
-        if (currentUserId === ADMIN_ID) {
-            switchTab('admin', document.getElementById('tab-admin'));
-        } else {
-            switchTab('tickets', document.getElementById('tab-tickets'));
-        }
+        switchTab(currentUserId === ADMIN_ID ? 'admin' : 'main', document.getElementById(currentUserId === ADMIN_ID ? 'tab-admin' : 'tab-tickets'));
     }
 
-    function switchTab(tabId, element) {
-        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-        if (element) {
-            document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-            element.classList.add('active');
-        }
-        document.getElementById('screen-' + tabId).classList.add('active');
-        
-        if (tabId === 'admin') loadAdminTickets();
-        if (tabId === 'tickets') loadUserTickets();
+    function switchTab(id, el) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        if(el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
+        document.getElementById('screen-' + id).classList.add('active');
+        if(id === 'admin') loadAdminTickets();
+        if(id === 'main') loadUserTickets();
     }
 
-    function showModal(id) {
-        document.getElementById('modal-' + id).classList.add('active');
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-    }
-
-    function closeModal(id) {
-        document.getElementById('modal-' + id).classList.remove('active');
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-    }
-
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2000);
+    function showToast(msg) {
+        const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
     }
 </script>
 </body>
