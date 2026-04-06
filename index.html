@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>resonance support</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Переменные по умолчанию (Светлая тема) */
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: #f9f9f9;
+            --accent-color: #000000;
+            --text-main: #000000;
+            --text-muted: #666666;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --glow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --glow-strong: 0 6px 16px rgba(0, 0, 0, 0.12);
+            --glow-text: none;
+            --tab-bg: rgba(255, 255, 255, 0.95);
+            --overlay-bg: rgba(0, 0, 0, 0.03);
+            --danger-color: #ff4444;
+            --danger-bg: rgba(255, 68, 68, 0.1);
+            --danger-border: rgba(255, 68, 68, 0.3);
+            --danger-glow: none;
+            --disabled-color: rgba(0, 0, 0, 0.2);
+            --success-color: #00ff00;
+            --success-bg: rgba(0, 255, 0, 0.1);
+            --success-border: rgba(0, 255, 0, 0.3);
+            --success-glow: none;
+            --hit-color: #b000ff;
+            --hit-bg: rgba(176, 0, 255, 0.1);
+            --hit-border: rgba(176, 0, 255, 0.3);
+            --hit-glow: none;
+        }
+        
+        /* CSS Переменные для Темной темы */
+        body.dark-theme {
+            --bg-color: #000000;
+            --card-bg: #0a0a0a;
+            --accent-color: #ffffff;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --glow: 0 0 15px rgba(255, 255, 255, 0.3);
+            --glow-strong: 0 0 25px rgba(255, 255, 255, 0.6);
+            --glow-text: 0 0 8px rgba(255, 255, 255, 0.8);
+            --tab-bg: rgba(0, 0, 0, 0.95);
+            --overlay-bg: rgba(255, 255, 255, 0.05);
+            --danger-color: #ff4444;
+            --danger-bg: rgba(255, 68, 68, 0.1);
+            --danger-border: rgba(255, 68, 68, 0.3);
+            --danger-glow: 0 0 15px rgba(255, 68, 68, 0.6);
+            --disabled-color: rgba(255, 255, 255, 0.2);
+            --success-glow: 0 0 15px rgba(0, 255, 0, 0.6);
+            --hit-glow: 0 0 15px rgba(176, 0, 255, 0.6);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'JetBrains Mono', monospace;
+            -webkit-tap-highlight-color: transparent;
+            text-transform: lowercase !important;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .global-header {
+            padding-bottom: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .app-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 20px 80px 20px;
+        }
+
+        .screen {
+            display: none;
+            animation: glitchFadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes glitchFadeIn {
+            0% { opacity: 0; transform: scale(0.98); filter: blur(2px); }
+            50% { opacity: 0.5; filter: blur(1px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            text-shadow: var(--glow-text);
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 2px;
+            background: var(--accent-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: var(--glow);
+        }
+
+        .card:hover {
+            box-shadow: var(--glow);
+            border-color: var(--accent-color);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .input-group {
+            display: flex;
+            background: transparent;
+            border-radius: 4px;
+            padding: 5px;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: var(--glow);
+        }
+
+        /* Добавил textarea для тикетов */
+        .input-group input, .input-group textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 10px 15px;
+            font-size: 13px;
+            outline: none;
+            text-overflow: ellipsis;
+            text-transform: none !important;
+            font-family: inherit;
+        }
+        
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 4px;
+            padding: 15px;
+            width: 100%;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: var(--glow-strong);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--tab-bg);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 11px;
+            text-transform: uppercase;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 50%; /* Изменил на 50% так как кнопок всего две */
+        }
+
+        .tab-item i {
+            font-size: 18px;
+            transition: transform 0.2s, text-shadow 0.2s;
+        }
+
+        .tab-item.active {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+        
+        .tab-item.active i {
+            transform: translateY(-2px);
+            text-shadow: var(--glow-text);
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: var(--glow-text);
+        }
+
+        .header-logo i {
+            color: var(--accent-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .status-active {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            box-shadow: var(--glow);
+        }
+
+        .status-inactive {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-border);
+        }
+        
+        .profile-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .profile-link:hover {
+            background: var(--overlay-bg);
+            border-color: var(--accent-color);
+            box-shadow: var(--glow);
+        }
+
+        .profile-link-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .profile-link-left i {
+            color: var(--accent-color);
+            font-size: 16px;
+            width: 24px;
+            text-align: center;
+            text-shadow: var(--glow-text);
+        }
+
+        .toast {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            color: var(--bg-color);
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: var(--glow-strong);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: var(--accent-color);
+            vertical-align: middle;
+            margin-left: 5px;
+            animation: blink 1s step-end infinite;
+            box-shadow: var(--glow);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .ticket-item {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: var(--overlay-bg);
+        }
+        
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .ticket-id {
+            color: var(--text-muted);
+        }
+        
+        .ticket-status-wait {
+            color: #f39c12; /* Желтый для ожидания */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast">сообщение отправлено!</div>
+
+    <div class="app-container">
+        
+        <div class="global-header">
+            <span>protect by resonance</span>
+        </div>
+
+        <div id="screen-tickets" class="screen active">
+            
+            <div class="header-top-row">
+                <div class="header-logo">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>support<span class="cursor-blink"></span></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>статус поддержки</h3>
+                <div class="status-badge" id="support-status-badge">загрузка...</div>
+                <p class="text-muted">рабочие часы: 10:00 - 22:00 (МСК)</p>
+            </div>
+
+            <div class="card">
+                <h3>создать обращение</h3>
+                <p class="text-muted" style="margin-bottom: 10px;">опишите проблему максимально подробно</p>
+                <div class="input-group">
+                    <textarea id="ticket-text" placeholder="ваше сообщение..."></textarea>
+                </div>
+                <button class="btn-primary" onclick="sendTicket()">отправить</button>
+            </div>
+
+            <div class="card">
+                <h3>мои тикеты</h3>
+                
+                <p id="empty-tickets" class="text-muted" style="text-align: center; padding: 20px 0; display: none;">у вас нет открытых обращений</p>
+                
+                <div class="ticket-item">
+                    <div class="ticket-header">
+                        <span class="ticket-id">#RS-1094</span>
+                        <span class="ticket-status-wait">в обработке</span>
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.4;">
+                        не могу подключиться с ios, выдает ошибку тайм-аута.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-instructions" class="screen">
+            <div class="header-top-row">
+                <div class="header-logo">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>база знаний<span class="cursor-blink"></span></span>
+                </div>
+            </div>
+            
+            <p class="text-muted" style="margin-bottom: 20px;">выберите нужный раздел для получения помощи</p>
+
+            <a href="#" class="profile-link">
+                <div class="profile-link-left">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                    <span>подключение на iOS / Android</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted"></i>
+            </a>
+
+            <a href="#" class="profile-link">
+                <div class="profile-link-left">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>подключение на Windows / Mac</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted"></i>
+            </a>
+            
+            <a href="#" class="profile-link">
+                <div class="profile-link-left">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>решение частых проблем</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('tickets', this)">
+            <i class="fa-solid fa-ticket"></i>
+            <span>мои тикеты</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('instructions', this)">
+            <i class="fa-solid fa-book"></i>
+            <span>инструкции</span>
+        </div>
+    </div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+        
+    document.addEventListener('DOMContentLoaded', () => {
+        tg.ready();
+        tg.expand();
+
+        function applyTheme() {
+            if (tg.colorScheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                tg.setHeaderColor('#000000');
+                tg.setBackgroundColor('#000000');
+            } else {
+                document.body.classList.remove('dark-theme');
+                tg.setHeaderColor('#ffffff');
+                tg.setBackgroundColor('#ffffff');
+            }
+        }
+        applyTheme();
+        tg.onEvent('themeChanged', applyTheme);
+        
+        // Запуск проверки времени
+        checkSupportTime();
+        // Обновлять статус каждую минуту
+        setInterval(checkSupportTime, 60000);
+    });
+
+    // --- ЛОГИКА ВРЕМЕНИ ПО МСК ---
+    function checkSupportTime() {
+        const badge = document.getElementById('support-status-badge');
+        
+        // Получаем текущее время UTC
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        
+        // Смещение МСК (UTC+3)
+        const mskTime = new Date(utc + (3600000 * 3));
+        const currentHour = mskTime.getHours();
+
+        // Проверяем: больше или равно 10:00 И меньше 22:00
+        if (currentHour >= 10 && currentHour < 22) {
+            badge.textContent = 'активна';
+            badge.className = 'status-badge status-active';
+            badge.style.backgroundColor = 'transparent';
+            badge.style.color = 'var(--accent-color)';
+        } else {
+            badge.textContent = 'неактивна';
+            badge.className = 'status-badge status-inactive';
+            badge.style.backgroundColor = 'var(--danger-bg)';
+            badge.style.color = 'var(--danger-color)';
+        }
+    }
+
+    // --- ОТПРАВКА ТИКЕТА ---
+    function sendTicket() {
+        const textarea = document.getElementById('ticket-text');
+        if(textarea.value.trim() === '') return;
+        
+        // Тут позже ты добавишь API запрос к твоему боту
+        // fetch('/api/create_ticket', { ... })
+        
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        showToast('сообщение отправлено!');
+        textarea.value = ''; // очищаем поле
+    }
+
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('screen-' + tabId).classList.add('active');
+        element.classList.add('active');
+        if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+</script>
+</body>
+</html>
