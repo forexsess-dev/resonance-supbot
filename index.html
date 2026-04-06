@@ -67,7 +67,6 @@
         .tab-pulse-yellow { color: var(--warning-color) !important; animation: pulseTab 2s infinite ease-in-out; }
         @keyframes pulseTab { 0%, 100% { opacity: 0.7; text-shadow: none; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(241,196,15,0.6); transform: scale(1.05); } }
 
-        /* Списки тикетов */
         .tickets-wrapper { flex: 1; overflow-y: auto; padding-bottom: 20px; }
         .ticket-item { padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; background: var(--overlay-bg); transition: 0.3s; }
         .ticket-item:hover { border-color: var(--accent-color); }
@@ -88,13 +87,13 @@
         .btn-icon-red { color: var(--danger-color); border: 1px solid var(--danger-color); background: transparent; }
         .btn-icon-red:hover { background: var(--danger-bg); box-shadow: var(--danger-glow); }
 
-        /* Чат */
+        /* ИСПРАВЛЕНО: word-break чтобы текст не вылетал за пределы */
         .chat-area { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; overflow-y: auto; padding-right: 5px; padding-bottom: 10px; }
-        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 8px; font-size: 13px; position: relative; line-height: 1.4; }
+        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 8px; font-size: 13px; position: relative; line-height: 1.4; word-break: break-word; overflow-wrap: break-word; }
         .msg-user { align-self: flex-end; background: var(--overlay-bg); border: 1px solid var(--border-color); border-bottom-right-radius: 2px; }
         .msg-support { align-self: flex-start; border: 1px solid var(--accent-color); border-bottom-left-radius: 2px; }
         .msg-time { font-size: 9px; color: var(--text-muted); margin-top: 5px; text-align: right; }
-        .msg-system { align-self: center; color: var(--danger-color); font-size: 10px; font-weight: 800; border: 1px dashed var(--danger-color); padding: 4px 10px; border-radius: 4px; text-transform: uppercase; margin: 10px 0; }
+        .msg-system { align-self: center; color: var(--danger-color); font-size: 10px; font-weight: 800; border: 1px dashed var(--danger-color); padding: 4px 10px; border-radius: 4px; text-transform: uppercase; margin: 10px 0; text-align: center; }
         
         .support-online { color: var(--success-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--success-color); text-transform: uppercase; }
         .support-offline { color: var(--danger-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--danger-color); text-transform: uppercase; }
@@ -146,7 +145,7 @@
                 </div>
                 <div id="err-msg" class="req-label">* данное поле обязательно к заполнению</div>
                 
-                <button class="btn-primary" onclick="submitTicket()">создать тикет</button>
+                <button id="btn-create-ticket" class="btn-primary" onclick="submitTicket()">создать тикет</button>
             </div>
 
             <h3>мои тикеты</h3>
@@ -236,6 +235,7 @@
     
     let currentActiveTicketId = null;
     let chatInterval = null;
+    let isCooldown = false; // Блокировка от спама
 
     document.addEventListener('DOMContentLoaded', () => {
         tg.ready(); tg.expand();
@@ -271,8 +271,31 @@
         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
     }
 
+    // Анимация таймера кд
+    function startCooldownTimer(btnId) {
+        if (currentUserId === ADMIN_ID) return;
+        isCooldown = true;
+        const btn = document.getElementById(btnId);
+        let timeLeft = 10;
+        btn.disabled = true;
+        const originalText = btnId === 'btn-create-ticket' ? 'создать тикет' : 'отправить';
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            btn.innerText = `подождите ${timeLeft}с...`;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                isCooldown = false;
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }, 1000);
+    }
+
     async function submitTicket() {
         if(currentUserId === 0) return alert("ID пользователя не найден.");
+        if(isCooldown && currentUserId !== ADMIN_ID) return showToast('подождите 10 сек!');
+        
         const select = document.getElementById('topic-select');
         const customInput = document.getElementById('custom-topic-input');
         const textArea = document.getElementById('ticket-msg');
@@ -295,8 +318,13 @@
                 body: JSON.stringify({ user_id: currentUserId, topic: topic, message: msg })
             });
             const data = await res.json();
+            
+            if (data.status === 'error' && data.msg === 'cooldown') return showToast('подождите 10 сек!');
+            
             showToast('тикет создан'); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             select.value = ''; customInput.value = ''; textArea.value = ''; handleTopicChange();
+            
+            startCooldownTimer('btn-create-ticket');
             loadUserTickets(); openChat(data.ticket_id, topic);
         } catch (e) { showToast('ошибка сервера'); }
     }
@@ -306,8 +334,12 @@
         if (currentUserId === 0) return cont.innerHTML = '<p class="text-muted" style="text-align: center;">Для тестов: добавьте ?id=123 в URL</p>';
         try {
             const res = await fetch(`${API_URL}/user_tickets/${currentUserId}`);
+            if (!res.ok) throw new Error('Network error');
             renderTickets(await res.json(), 'user-tickets-list', false);
-        } catch (e) { cont.innerHTML = '<p style="text-align: center; color: var(--danger-color);">ошибка подключения</p>'; }
+        } catch (e) { 
+            // Мягкая обработка ошибки подключения, чтобы страница не казалась сломанной
+            cont.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 11px;">Нет связи с сервером. Возможно, он перезагружается.</p>'; 
+        }
     }
 
     async function loadAdminTickets() {
@@ -316,8 +348,9 @@
         const cont = document.getElementById('admin-tickets-list');
         try {
             const res = await fetch(`${API_URL}/admin_tickets?search=${encodeURIComponent(q)}&filter=${encodeURIComponent(f)}`);
+            if (!res.ok) throw new Error('Network error');
             renderTickets(await res.json(), 'admin-tickets-list', true);
-        } catch (e) { cont.innerHTML = '<p style="text-align: center; color: var(--danger-color);">ошибка сервера</p>'; }
+        } catch (e) { cont.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 11px;">Нет связи с сервером.</p>'; }
     }
 
     function renderTickets(tickets, containerId, isAdmin) {
@@ -325,7 +358,6 @@
         if (tickets.length === 0) return container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px 0;">список пуст</p>';
         container.innerHTML = tickets.map(t => {
             const date = new Date(t.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            
             let statusBadge = t.status === 'closed' ? '<span class="ticket-closed-badge">тикет закрыт</span>' : '';
             let actions = '';
             
@@ -374,7 +406,6 @@
         document.getElementById('chat-ticket-id').innerText = '#' + id;
         if(topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
         
-        // Админские кнопки
         document.getElementById('btn-close-ticket').style.display = (currentUserId === ADMIN_ID) ? 'flex' : 'none';
         document.getElementById('admin-exit-btn').style.display = (currentUserId === ADMIN_ID) ? 'block' : 'none';
         
@@ -418,7 +449,6 @@
                 statusEl.textContent = 'support: offline'; statusEl.className = 'support-offline';
             }
             
-            // Локировка если закрыт
             const inputCont = document.getElementById('chat-input-container');
             const inp = document.getElementById('chat-input');
             const btn = document.getElementById('btn-send-reply');
@@ -426,7 +456,7 @@
                 inp.disabled = true; btn.disabled = true; inp.placeholder = "Тикет закрыт...";
                 document.getElementById('btn-close-ticket').style.display = 'none';
             } else {
-                inp.disabled = false; btn.disabled = false; inp.placeholder = "сообщение...";
+                if(!isCooldown) { inp.disabled = false; btn.disabled = false; inp.placeholder = "сообщение..."; }
                 if(currentUserId === ADMIN_ID) document.getElementById('btn-close-ticket').style.display = 'flex';
             }
 
@@ -434,7 +464,7 @@
             const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
 
             container.innerHTML = data.messages.map(m => {
-                if (m.sender_id === 0) return `<div class="msg-system">${m.text}</div>`; // Системное сообщение
+                if (m.sender_id === 0) return `<div class="msg-system">${m.text}</div>`;
                 const isMine = m.sender_id === currentUserId;
                 const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
@@ -448,14 +478,21 @@
     }
 
     async function sendReply() {
+        if(isCooldown && currentUserId !== ADMIN_ID) return showToast('подождите...');
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
         if (!text) return;
         try {
-            await fetch(`${API_URL}/reply`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ticket_id: currentActiveTicketId, sender_id: currentUserId, text: text }) });
+            const res = await fetch(`${API_URL}/reply`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ticket_id: currentActiveTicketId, sender_id: currentUserId, text: text }) });
+            const data = await res.json();
+            
+            if (data.status === 'error' && data.msg === 'cooldown') return showToast('подождите 10 сек!');
+            
             input.value = ''; await refreshChat();
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            
+            startCooldownTimer('btn-send-reply');
         } catch (e) { showToast('ошибка'); }
     }
 
