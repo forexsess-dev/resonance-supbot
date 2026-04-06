@@ -15,6 +15,7 @@
             --danger-color: #ff4444; --danger-bg: rgba(255, 68, 68, 0.1); --danger-border: rgba(255, 68, 68, 0.3);
             --success-color: #00ff00; --success-bg: rgba(0, 255, 0, 0.1); --success-border: rgba(0, 255, 0, 0.3);
             --tab-bg: rgba(255, 255, 255, 0.95); --overlay-bg: rgba(0, 0, 0, 0.03);
+            --warning-color: #f1c40f; --warning-bg: rgba(241, 196, 15, 0.1);
         }
         body.dark-theme {
             --bg-color: #000000; --card-bg: #0a0a0a; --accent-color: #ffffff; --text-main: #ffffff;
@@ -24,13 +25,15 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'JetBrains Mono', monospace; text-transform: lowercase !important; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
-        .app-container { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; }
-        .screen { display: none; animation: fadeIn 0.3s ease; }
-        .screen.active { display: block; }
+        
+        .app-container { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; display: flex; flex-direction: column; }
+        
+        .screen { display: none; animation: fadeIn 0.3s ease; flex-direction: column; height: 100%; }
+        .screen.active { display: flex; }
         @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
         
         h3 { font-weight: 700; margin-bottom: 15px; text-transform: uppercase; }
-        .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); position: relative; transition: box-shadow 0.3s; }
+        .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); position: relative; transition: box-shadow 0.3s; flex-shrink: 0; }
         .card:hover { box-shadow: var(--glow); border-color: var(--accent-color); }
         
         .input-group { display: flex; background: transparent; border-radius: 4px; padding: 5px; margin-top: 10px; border: 1px solid var(--border-color); transition: 0.3s; }
@@ -39,15 +42,18 @@
         .input-group select option { background-color: var(--card-bg); color: var(--text-main); }
         .input-group textarea { min-height: 80px; resize: none; }
         
-        /* Умная пульсирующая ошибка */
         .req-label { color: rgba(255, 68, 68, 0.4); font-size: 10px; margin-top: 5px; font-weight: 800; display: none; text-transform: uppercase; }
         .req-label.pulse-error { display: block; color: #ff0000; animation: pulseError 0.8s infinite alternate; }
         @keyframes pulseError { from { opacity: 0.4; transform: scale(1); } to { opacity: 1; transform: scale(1.02); text-shadow: 0 0 5px red; } }
 
-        .btn-primary { background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); border-radius: 4px; padding: 15px; width: 100%; font-size: 14px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        .btn-primary:hover { background: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-strong); }
-        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary { background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); border-radius: 4px; padding: 15px; width: 100%; font-size: 14px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: 0.3s; flex-shrink: 0; }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-strong); }
+        .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+        .btn-primary:disabled { border-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; }
         
+        .btn-exit-chat { background: var(--danger-bg); color: var(--danger-color); border: 1px solid var(--danger-color); }
+        .btn-exit-chat:hover { background: var(--danger-color); color: var(--bg-color); box-shadow: 0 0 15px rgba(255,68,68,0.4); }
+
         .status-badge { display: inline-block; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid; transition: 0.3s; }
         .status-active { color: var(--success-color); background: var(--success-bg); border-color: var(--success-border); box-shadow: var(--success-glow); }
         .status-inactive { color: var(--danger-color); background: var(--danger-bg); border-color: var(--danger-border); box-shadow: var(--danger-glow); }
@@ -57,27 +63,43 @@
         .tab-item.active { color: var(--accent-color); font-weight: 800; }
         .tab-item.active i { transform: translateY(-2px); text-shadow: var(--glow-text); }
         .tab-item i { font-size: 18px; transition: 0.2s; }
+        
+        .tab-pulse-yellow { color: var(--warning-color) !important; animation: pulseTab 2s infinite ease-in-out; }
+        @keyframes pulseTab { 0%, 100% { opacity: 0.7; text-shadow: none; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(241,196,15,0.6); transform: scale(1.05); } }
 
         /* Списки тикетов */
+        .tickets-wrapper { flex: 1; overflow-y: auto; padding-bottom: 20px; }
         .ticket-item { padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; background: var(--overlay-bg); transition: 0.3s; }
         .ticket-item:hover { border-color: var(--accent-color); }
-        .ticket-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 5px; }
+        .ticket-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 5px; align-items: center;}
         .ticket-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
+        .ticket-closed-badge { color: var(--danger-color); border: 1px solid var(--danger-color); padding: 2px 6px; border-radius: 4px; font-size: 9px; text-transform: uppercase; font-weight: 800; }
+
         .btn-enter-chat { color: var(--success-color); border: 1px solid var(--success-color); border-radius: 4px; padding: 5px 12px; font-size: 12px; background: transparent; cursor: pointer; transition: 0.3s; }
         .btn-enter-chat:hover { background: var(--success-bg); box-shadow: var(--success-glow); }
-        .btn-icon { background: transparent; border: none; color: var(--accent-color); font-size: 18px; cursor: pointer; transition: 0.2s; }
-        .btn-icon:hover { text-shadow: var(--glow-text); }
+        
+        .btn-icon { background: transparent; border: none; font-size: 18px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 4px;}
+        .btn-icon-default { color: var(--accent-color); border: 1px solid var(--border-color); }
+        .btn-icon-default:hover { border-color: var(--accent-color); box-shadow: var(--glow); }
+        
+        .btn-icon-yellow { color: var(--warning-color); border: 1px solid var(--warning-color); background: var(--warning-bg); }
+        .btn-icon-yellow:hover { background: var(--warning-color); color: var(--bg-color); }
+        
+        .btn-icon-red { color: var(--danger-color); border: 1px solid var(--danger-color); background: transparent; }
+        .btn-icon-red:hover { background: var(--danger-bg); box-shadow: var(--danger-glow); }
 
         /* Чат */
-        .chat-area { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; padding-bottom: 20px; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; overflow-y: auto; padding-right: 5px; padding-bottom: 10px; }
         .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 8px; font-size: 13px; position: relative; line-height: 1.4; }
         .msg-user { align-self: flex-end; background: var(--overlay-bg); border: 1px solid var(--border-color); border-bottom-right-radius: 2px; }
         .msg-support { align-self: flex-start; border: 1px solid var(--accent-color); border-bottom-left-radius: 2px; }
         .msg-time { font-size: 9px; color: var(--text-muted); margin-top: 5px; text-align: right; }
-        .support-online { color: var(--success-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--success-color); display: none; text-transform: uppercase; }
+        .msg-system { align-self: center; color: var(--danger-color); font-size: 10px; font-weight: 800; border: 1px dashed var(--danger-color); padding: 4px 10px; border-radius: 4px; text-transform: uppercase; margin: 10px 0; }
         
-        .header-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; text-transform: uppercase; text-shadow: var(--glow-text); }
+        .support-online { color: var(--success-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--success-color); text-transform: uppercase; }
+        .support-offline { color: var(--danger-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--danger-color); text-transform: uppercase; }
+        
+        .header-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; text-transform: uppercase; text-shadow: var(--glow-text); flex-shrink: 0;}
         .cursor-blink { display: inline-block; width: 8px; height: 18px; background: var(--accent-color); margin-left: 5px; animation: blink 1s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         
@@ -87,7 +109,7 @@
 </head>
 <body class="dark-theme">
 
-    <div id="toast" class="toast">сообщение отправлено!</div>
+    <div id="toast" class="toast">выполнено!</div>
 
     <div class="app-container">
         
@@ -128,31 +150,35 @@
             </div>
 
             <h3>мои тикеты</h3>
-            <div id="user-tickets-list">
+            <div id="user-tickets-list" class="tickets-wrapper">
                 <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
             </div>
         </div>
 
         <div id="screen-chat" class="screen">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; flex-shrink: 0;">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <button class="btn-icon" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="btn-icon btn-icon-default" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
                     <div>
                         <h3 id="chat-ticket-id" style="margin:0; text-transform: none;">#000</h3>
                         <div id="chat-ticket-topic" style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Тема: ...</div>
                     </div>
                 </div>
-                <div id="support-online-status" class="support-online">support: online</div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                    <div id="support-online-status" class="support-offline">support: offline</div>
+                    <button id="btn-close-ticket" class="btn-icon btn-icon-red" style="display: none; height: 25px; width: 30px;" onclick="closeTicket()"><i class="fa-solid fa-lock"></i></button>
+                </div>
             </div>
             
             <div id="chat-messages" class="chat-area"></div>
             
-            <div style="margin-top: 10px;">
+            <div id="chat-input-container" style="flex-shrink: 0; margin-top: 10px;">
                 <div class="input-group">
                     <textarea id="chat-input" placeholder="сообщение..." style="min-height: 50px;"></textarea>
                 </div>
-                <button class="btn-primary" onclick="sendReply()">отправить</button>
+                <button id="btn-send-reply" class="btn-primary" onclick="sendReply()">отправить</button>
             </div>
+            <button id="admin-exit-btn" class="btn-primary btn-exit-chat" style="display:none; flex-shrink: 0;" onclick="adminExitChat()">выйти из чата</button>
         </div>
 
         <div id="screen-admin" class="screen">
@@ -174,27 +200,38 @@
                 </div>
             </div>
 
-            <h3>все обращения</h3>
-            <div id="admin-tickets-list">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0;">
+                <h3 style="margin: 0;">все обращения</h3>
+                <button class="btn-icon btn-icon-red" onclick="deleteAllTickets()"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div id="admin-tickets-list" class="tickets-wrapper">
                 <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
             </div>
+        </div>
+        
+        <div id="screen-instructions" class="screen">
+            <div class="header-logo" style="margin-bottom: 20px;">
+                <i class="fa-solid fa-book"></i><span>инструкции<span class="cursor-blink"></span></span>
+            </div>
+            <p class="text-muted" style="text-align: center; margin-top: 50px;">Здесь будут инструкции...</p>
         </div>
 
     </div>
 
     <div class="tab-bar">
         <div class="tab-item active" id="tab-tickets" onclick="switchTab('main', this)"><i class="fa-solid fa-ticket"></i><span>тикеты</span></div>
+        <div class="tab-item" id="tab-instructions" onclick="switchTab('instructions', this)">
+            <i class="fa-solid fa-book tab-pulse-yellow"></i><span class="tab-pulse-yellow">инструкции</span>
+        </div>
         <div class="tab-item" id="tab-admin" onclick="switchTab('admin', this)" style="display: none;"><i class="fa-solid fa-user-shield"></i><span>админ</span></div>
     </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    // ЛОКАЛЬНЫЙ АДРЕС БЕКЕНДА
     const API_URL = "http://127.0.0.1:8081/support_api"; 
     const ADMIN_ID = 1054483124; 
     
     const urlParams = new URLSearchParams(window.location.search);
-    // Берем ID из Telegram, либо из ссылки (для тестов)
     const currentUserId = parseInt(tg.initDataUnsafe?.user?.id || urlParams.get('id') || '0');
     
     let currentActiveTicketId = null;
@@ -206,175 +243,198 @@
             document.body.classList.add('dark-theme');
             tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
         }
-        if (currentUserId === ADMIN_ID) {
-            document.getElementById('tab-admin').style.display = 'flex';
-        }
+        if (currentUserId === ADMIN_ID) document.getElementById('tab-admin').style.display = 'flex';
         
-        checkSupportTime();
-        setInterval(checkSupportTime, 60000);
+        checkSupportTime(); setInterval(checkSupportTime, 60000);
         loadUserTickets();
     });
 
-    // Расчет времени МСК
     function checkSupportTime() {
         const badge = document.getElementById('msk-status');
         const now = new Date();
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const mskTime = new Date(utc + (3600000 * 3));
-        const hour = mskTime.getHours();
-
-        if (hour >= 10 && hour < 22) {
-            badge.textContent = 'активна'; badge.className = 'status-badge status-active';
-        } else {
-            badge.textContent = 'неактивна'; badge.className = 'status-badge status-inactive';
-        }
+        const hour = new Date(utc + (3600000 * 3)).getHours();
+        if (hour >= 10 && hour < 22) { badge.textContent = 'активна'; badge.className = 'status-badge status-active'; } 
+        else { badge.textContent = 'неактивна'; badge.className = 'status-badge status-inactive'; }
     }
 
-    // Выбор темы
     function handleTopicChange() {
         const select = document.getElementById('topic-select');
         const customBox = document.getElementById('custom-topic-box');
-        if (select.value === 'Другое') {
-            customBox.style.display = 'block';
-        } else {
-            customBox.style.display = 'none';
-            document.getElementById('err-topic').classList.remove('pulse-error');
-        }
+        if (select.value === 'Другое') customBox.style.display = 'block';
+        else { customBox.style.display = 'none'; document.getElementById('err-topic').classList.remove('pulse-error'); }
     }
 
-    // Пульсация ошибки
-    function triggerPulseError(elementId) {
-        const el = document.getElementById(elementId);
-        el.classList.remove('pulse-error');
-        void el.offsetWidth; // Сброс анимации CSS
-        el.classList.add('pulse-error');
+    function triggerPulseError(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('pulse-error'); void el.offsetWidth; el.classList.add('pulse-error');
         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
     }
 
-    // Создать тикет
     async function submitTicket() {
-        if(currentUserId === 0) return alert("ID пользователя не найден. Добавьте ?id= В ссылку.");
-
+        if(currentUserId === 0) return alert("ID пользователя не найден.");
         const select = document.getElementById('topic-select');
         const customInput = document.getElementById('custom-topic-input');
         const textArea = document.getElementById('ticket-msg');
         
-        let finalTopic = select.value;
-        if (!finalTopic) return showToast('выберите тему');
-        
-        if (finalTopic === 'Другое') {
-            finalTopic = customInput.value.trim();
-            if (!finalTopic) return triggerPulseError('err-topic');
+        let topic = select.value;
+        if (!topic) return showToast('выберите тему');
+        if (topic === 'Другое') {
+            topic = customInput.value.trim();
+            if (!topic) return triggerPulseError('err-topic');
             document.getElementById('err-topic').classList.remove('pulse-error');
         }
         
-        const message = textArea.value.trim();
-        if (!message) return triggerPulseError('err-msg');
+        const msg = textArea.value.trim();
+        if (!msg) return triggerPulseError('err-msg');
         document.getElementById('err-msg').classList.remove('pulse-error');
 
         try {
             const res = await fetch(`${API_URL}/create`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: currentUserId, topic: finalTopic, message: message })
+                body: JSON.stringify({ user_id: currentUserId, topic: topic, message: msg })
             });
-            if(!res.ok) throw new Error();
             const data = await res.json();
-            
-            showToast('тикет создан');
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            
+            showToast('тикет создан'); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             select.value = ''; customInput.value = ''; textArea.value = ''; handleTopicChange();
-            loadUserTickets(); openChat(data.ticket_id, finalTopic);
-        } catch (e) {
-            showToast('ошибка сервера');
-        }
+            loadUserTickets(); openChat(data.ticket_id, topic);
+        } catch (e) { showToast('ошибка сервера'); }
     }
 
-    // Загрузка тикетов ЮЗЕРА
     async function loadUserTickets() {
-        const container = document.getElementById('user-tickets-list');
-        if (currentUserId === 0) return container.innerHTML = '<p class="text-muted" style="text-align: center;">Для тестов: добавьте ?id=123 в URL</p>';
+        const cont = document.getElementById('user-tickets-list');
+        if (currentUserId === 0) return cont.innerHTML = '<p class="text-muted" style="text-align: center;">Для тестов: добавьте ?id=123 в URL</p>';
         try {
             const res = await fetch(`${API_URL}/user_tickets/${currentUserId}`);
-            if(!res.ok) throw new Error();
             renderTickets(await res.json(), 'user-tickets-list', false);
-        } catch (e) { 
-            container.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-weight: bold;">ошибка подключения к серверу</p>'; 
-        }
+        } catch (e) { cont.innerHTML = '<p style="text-align: center; color: var(--danger-color);">ошибка подключения</p>'; }
     }
 
-    // Загрузка тикетов АДМИНА
     async function loadAdminTickets() {
         const q = document.getElementById('admin-search').value.toLowerCase();
         const f = document.getElementById('admin-filter').value;
-        const container = document.getElementById('admin-tickets-list');
+        const cont = document.getElementById('admin-tickets-list');
         try {
             const res = await fetch(`${API_URL}/admin_tickets?search=${encodeURIComponent(q)}&filter=${encodeURIComponent(f)}`);
-            if(!res.ok) throw new Error();
             renderTickets(await res.json(), 'admin-tickets-list', true);
-        } catch (e) { 
-            container.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-weight: bold;">ошибка сервера</p>'; 
-        }
+        } catch (e) { cont.innerHTML = '<p style="text-align: center; color: var(--danger-color);">ошибка сервера</p>'; }
     }
 
-    // Отрисовка списка
     function renderTickets(tickets, containerId, isAdmin) {
         const container = document.getElementById(containerId);
         if (tickets.length === 0) return container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px 0;">список пуст</p>';
         container.innerHTML = tickets.map(t => {
             const date = new Date(t.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            let actions = `<button class="btn-icon" onclick="openChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-eye"></i></button>`;
-            if (isAdmin) actions += `<button class="btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> войти</button>`;
+            
+            let statusBadge = t.status === 'closed' ? '<span class="ticket-closed-badge">тикет закрыт</span>' : '';
+            let actions = '';
+            
+            if (isAdmin) {
+                actions = `
+                <button class="btn-icon btn-icon-yellow" onclick="deleteTicket(${t.id})"><i class="fa-solid fa-trash"></i></button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-icon btn-icon-default" onclick="openChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-eye"></i></button>
+                    <button class="btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> войти</button>
+                </div>`;
+            } else {
+                actions = `<button class="btn-icon btn-icon-default" onclick="openChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-eye"></i></button>`;
+            }
+
             return `
             <div class="ticket-item">
-                <div class="ticket-header"><span style="color:var(--text-main);">#${t.id}</span><span style="font-weight:normal;color:var(--text-muted);">${date}</span></div>
+                <div class="ticket-header">
+                    <div><span style="color:var(--text-main);">#${t.id}</span> ${statusBadge}</div>
+                    <span style="font-weight:normal;color:var(--text-muted);">${date}</span>
+                </div>
                 <div style="font-size: 11px; margin-bottom: 5px; color: var(--accent-color);">${t.topic}</div>
                 <div class="ticket-preview">${t.preview || '...'}</div>
-                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">${actions}</div>
+                <div style="display:flex; justify-content:${isAdmin ? 'space-between' : 'flex-end'}; align-items:center; margin-top:10px;">${actions}</div>
             </div>`;
         }).join('');
     }
 
-    // Открыть чат
+    async function deleteTicket(id) {
+        if(!confirm("Удалить тикет?")) return;
+        try {
+            await fetch(`${API_URL}/ticket/${id}`, {method: 'DELETE'});
+            loadAdminTickets(); showToast('удалено');
+        } catch (e) { showToast('ошибка'); }
+    }
+
+    async function deleteAllTickets() {
+        if(!confirm("Удалить ВСЕ тикеты? Это действие необратимо.")) return;
+        try {
+            await fetch(`${API_URL}/tickets/all`, {method: 'DELETE'});
+            loadAdminTickets(); showToast('все тикеты удалены');
+        } catch (e) { showToast('ошибка'); }
+    }
+
     async function openChat(id, topic) {
         currentActiveTicketId = id;
         document.getElementById('chat-ticket-id').innerText = '#' + id;
         if(topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
         
+        // Админские кнопки
+        document.getElementById('btn-close-ticket').style.display = (currentUserId === ADMIN_ID) ? 'flex' : 'none';
+        document.getElementById('admin-exit-btn').style.display = (currentUserId === ADMIN_ID) ? 'block' : 'none';
+        
         switchTab('chat', null);
         await refreshChat();
-        
         if(chatInterval) clearInterval(chatInterval);
         chatInterval = setInterval(refreshChat, 3000);
     }
 
-    // Админ входит в чат
     async function adminEnterChat(id, topic) {
+        try { await fetch(`${API_URL}/admin_enter/${id}`, {method: 'POST'}); openChat(id, topic); } catch (e) {}
+    }
+
+    async function adminExitChat() {
         try {
-            await fetch(`${API_URL}/admin_enter/${id}`, {method: 'POST'});
-            openChat(id, topic);
+            await fetch(`${API_URL}/admin_exit/${currentActiveTicketId}`, {method: 'POST'});
+            goBack();
         } catch (e) { showToast('ошибка'); }
     }
 
-    // Обновление чата
+    async function closeTicket() {
+        if(!confirm("Закрыть тикет? Юзер больше не сможет писать.")) return;
+        try {
+            await fetch(`${API_URL}/close/${currentActiveTicketId}`, {method: 'POST'});
+            refreshChat(); showToast('тикет закрыт');
+        } catch (e) { showToast('ошибка'); }
+    }
+
     async function refreshChat() {
         if (!currentActiveTicketId) return;
         try {
             const res = await fetch(`${API_URL}/chat/${currentActiveTicketId}`);
-            if(!res.ok) throw new Error();
             const data = await res.json();
             
             if(data.topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + data.topic;
             
-            // Если мы не админ, но админ в чате - показываем статус
-            document.getElementById('support-online-status').style.display = (currentUserId !== ADMIN_ID && data.admin_online) ? 'block' : 'none';
+            const statusEl = document.getElementById('support-online-status');
+            if (data.admin_online) {
+                statusEl.textContent = 'support: online'; statusEl.className = 'support-online';
+            } else {
+                statusEl.textContent = 'support: offline'; statusEl.className = 'support-offline';
+            }
             
+            // Локировка если закрыт
+            const inputCont = document.getElementById('chat-input-container');
+            const inp = document.getElementById('chat-input');
+            const btn = document.getElementById('btn-send-reply');
+            if (data.status === 'closed') {
+                inp.disabled = true; btn.disabled = true; inp.placeholder = "Тикет закрыт...";
+                document.getElementById('btn-close-ticket').style.display = 'none';
+            } else {
+                inp.disabled = false; btn.disabled = false; inp.placeholder = "сообщение...";
+                if(currentUserId === ADMIN_ID) document.getElementById('btn-close-ticket').style.display = 'flex';
+            }
+
             const container = document.getElementById('chat-messages');
-            
-            // Проверяем нужно ли скроллить вниз (если пришли новые сообщения)
             const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
 
             container.innerHTML = data.messages.map(m => {
+                if (m.sender_id === 0) return `<div class="msg-system">${m.text}</div>`; // Системное сообщение
                 const isMine = m.sender_id === currentUserId;
                 const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
@@ -384,28 +444,21 @@
             }).join('');
             
             if (isAtBottom) container.scrollTop = container.scrollHeight;
-        } catch (e) { console.error(e); }
+        } catch (e) {}
     }
 
-    // Отправка ответа
     async function sendReply() {
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
         if (!text) return;
         try {
-            await fetch(`${API_URL}/reply`, { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify({ ticket_id: currentActiveTicketId, sender_id: currentUserId, text: text }) 
-            });
-            input.value = ''; 
-            await refreshChat();
+            await fetch(`${API_URL}/reply`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ticket_id: currentActiveTicketId, sender_id: currentUserId, text: text }) });
+            input.value = ''; await refreshChat();
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        } catch (e) { showToast('ошибка отправки'); }
+        } catch (e) { showToast('ошибка'); }
     }
 
-    // Навигация
     function goBack() {
         if(chatInterval) clearInterval(chatInterval);
         currentActiveTicketId = null;
