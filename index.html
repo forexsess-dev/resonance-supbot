@@ -292,7 +292,7 @@
         }, 1000);
     }
 
-    async function submitTicket() {
+async function submitTicket() {
         if(currentUserId === 0) return alert("ID пользователя не найден.");
         if(isCooldown && currentUserId !== ADMIN_ID) return showToast('подождите 10 сек!');
         
@@ -319,7 +319,11 @@
             });
             const data = await res.json();
             
-            if (data.status === 'error' && data.msg === 'cooldown') return showToast('подождите 10 сек!');
+            if (data.status === 'error') {
+                if (data.msg === 'cooldown') return showToast('подождите 10 сек!');
+                if (data.msg === 'ticket_cooldown') return showToast('не чаще 1 раза в 10 минут!');
+                return;
+            }
             
             showToast('тикет создан'); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             select.value = ''; customInput.value = ''; textArea.value = ''; handleTopicChange();
@@ -327,19 +331,6 @@
             startCooldownTimer('btn-create-ticket');
             loadUserTickets(); openChat(data.ticket_id, topic);
         } catch (e) { showToast('ошибка сервера'); }
-    }
-
-    async function loadUserTickets() {
-        const cont = document.getElementById('user-tickets-list');
-        if (currentUserId === 0) return cont.innerHTML = '<p class="text-muted" style="text-align: center;">Для тестов: добавьте ?id=123 в URL</p>';
-        try {
-            const res = await fetch(`${API_URL}/user_tickets/${currentUserId}`);
-            if (!res.ok) throw new Error('Network error');
-            renderTickets(await res.json(), 'user-tickets-list', false);
-        } catch (e) { 
-            // Мягкая обработка ошибки подключения, чтобы страница не казалась сломанной
-            cont.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 11px;">Нет связи с сервером. Возможно, он перезагружается.</p>'; 
-        }
     }
 
     async function loadAdminTickets() {
