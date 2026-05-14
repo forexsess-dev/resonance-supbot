@@ -19,154 +19,134 @@
         }
         body.dark-theme {
             --bg-color: #000000; --card-bg: #0a0a0a; --accent-color: #ffffff; --text-main: #ffffff;
-            --text-muted: #888888; --border-color: rgba(255, 255, 255, 0.2); --glow: 0 0 15px rgba(255, 255, 255, 0.3);
-            --glow-strong: 0 0 25px rgba(255, 255, 255, 0.6); --glow-text: 0 0 8px rgba(255, 255, 255, 0.8);
+            --text-muted: #888888; --border-color: rgba(255, 255, 255, 0.2); --glow: 0 0 15px rgba(255, 255, 255, 0.2);
+            --glow-strong: 0 0 25px rgba(255, 255, 255, 0.4); --glow-text: 0 0 8px rgba(255, 255, 255, 0.6);
             --tab-bg: rgba(0, 0, 0, 0.95); --overlay-bg: rgba(255, 255, 255, 0.05);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'JetBrains Mono', monospace; text-transform: lowercase !important; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        /* Исправлен скролл здесь */
-        .app-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; position: relative; }
-        .app-container::after {
-            content: "";
-            display: block;
-            min-height: 160px; /* Высота твоей панели с текстом бота */
-            flex-shrink: 0;
-        }
+        .app-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth; }
+        .app-container::after { content: ""; display: block; min-height: 120px; flex-shrink: 0; }
         
-        .screen { display: none; animation: fadeIn 0.3s ease; flex-direction: column; flex: 1; }
-        .screen.active { display: flex; }
+        /* Анимация переходов между экранами */
+        .screen { display: none; opacity: 0; transform: translateX(20px); flex-direction: column; flex: 1; transition: all 0.3s ease; }
+        .screen.active { display: flex; opacity: 1; transform: translateX(0); }
         
-        /* Экраны теперь могут растягиваться по высоте контента */
-        #screen-main, #screen-admin, #screen-instructions { min-height: 100%; height: auto; }
-        /* А чат остается строго по размеру окна, чтобы поле ввода было внизу */
+        #screen-main, #screen-tickets, #screen-admin, #screen-instructions { min-height: 100%; height: auto; }
         #screen-chat { height: 100%; }
-
-        @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
         
-        h3 { font-weight: 700; margin-bottom: 15px; text-transform: uppercase; }
-        .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); position: relative; transition: box-shadow 0.3s; flex-shrink: 0; }
-        .card:hover { box-shadow: var(--glow); border-color: var(--accent-color); }
+        h3 { font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .input-group { display: flex; background: transparent; border-radius: 4px; padding: 5px; margin-top: 10px; border: 1px solid var(--border-color); transition: 0.3s; }
-        .input-group:focus-within { border-color: var(--accent-color); box-shadow: var(--glow); }
-        .input-group input, .input-group textarea, .input-group select { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px; font-size: 13px; outline: none; font-family: inherit; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); position: relative; transition: all 0.3s ease; flex-shrink: 0; }
+        .card:hover { border-color: rgba(255,255,255,0.4); box-shadow: var(--glow); transform: translateY(-2px); }
+        
+        .input-group { display: flex; background: var(--overlay-bg); border-radius: 8px; padding: 2px; margin-top: 10px; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .input-group:focus-within { border-color: var(--accent-color); box-shadow: var(--glow); background: transparent; }
+        .input-group input, .input-group textarea, .input-group select { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 12px; font-size: 13px; outline: none; font-family: inherit; }
         .input-group select option { background-color: var(--card-bg); color: var(--text-main); }
-        .input-group textarea { min-height: 80px; resize: none; }
+        .input-group textarea { min-height: 100px; resize: none; line-height: 1.5; }
         
         .req-label { color: rgba(255, 68, 68, 0.4); font-size: 10px; margin-top: 5px; font-weight: 800; display: none; text-transform: uppercase; }
         .req-label.pulse-error { display: block; color: #ff0000; animation: pulseError 0.8s infinite alternate; }
         @keyframes pulseError { from { opacity: 0.4; transform: scale(1); } to { opacity: 1; transform: scale(1.02); text-shadow: 0 0 5px red; } }
 
-        .btn-primary { background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); border-radius: 4px; padding: 15px; width: 100%; font-size: 14px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: 0.3s; flex-shrink: 0; }
-        .btn-primary:hover:not(:disabled) { background: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-strong); }
-        .btn-primary:active:not(:disabled) { transform: scale(0.98); }
-        .btn-primary:disabled { border-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; }
+        .btn-primary { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); border-radius: 8px; padding: 15px; width: 100%; font-size: 14px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 15px; transition: all 0.3s ease; flex-shrink: 0; position: relative; overflow: hidden; }
+        .btn-primary::after { content: ''; position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255, 255, 255, 0.5); opacity: 0; border-radius: 100%; transform: scale(1, 1) translate(-50%); transform-origin: 50% 50%; }
+        .btn-primary:focus:not(:active)::after { animation: ripple 1s ease-out; }
+        @keyframes ripple { 0% { transform: scale(0, 0); opacity: 0.5; } 100% { transform: scale(100, 100); opacity: 0; } }
         
-        .btn-exit-chat { background: var(--danger-bg); color: var(--danger-color); border: 1px solid var(--danger-color); }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-strong); letter-spacing: 1px; }
+        .btn-primary:active:not(:disabled) { transform: scale(0.97); }
+        .btn-primary:disabled { border-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; opacity: 0.5; }
+        
+        .btn-exit-chat { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); }
         .btn-exit-chat:hover { background: var(--danger-color); color: var(--bg-color); box-shadow: 0 0 15px rgba(255,68,68,0.4); }
 
-        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid; transition: 0.3s; }
-        .status-active { color: var(--success-color); background: var(--success-bg); border-color: var(--success-border); box-shadow: var(--success-glow); }
-        .status-inactive { color: var(--danger-color); background: var(--danger-bg); border-color: var(--danger-border); box-shadow: var(--danger-glow); }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid; transition: all 0.3s ease; }
+        .status-badge::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; }
+        .status-active { color: var(--success-color); background: var(--success-bg); border-color: var(--success-border); }
+        .status-active::before { background: var(--success-color); box-shadow: 0 0 8px var(--success-color); animation: blinkPulse 2s infinite; }
+        .status-inactive { color: var(--danger-color); background: var(--danger-bg); border-color: var(--danger-border); }
+        .status-inactive::before { background: var(--danger-color); box-shadow: 0 0 8px var(--danger-color); }
+        @keyframes blinkPulse { 0% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.5; transform: scale(0.8); } }
 
-        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--tab-bg); backdrop-filter: blur(10px); display: flex; border-top: 1px solid var(--border-color); padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 15px 0; color: var(--text-muted); font-size: 10px; gap: 5px; cursor: pointer; transition: 0.3s; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--tab-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; border-top: 1px solid var(--border-color); padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 0; color: var(--text-muted); font-size: 10px; gap: 6px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .tab-item::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: var(--accent-color); transition: width 0.3s ease; }
+        .tab-item.active::before { width: 40px; }
         .tab-item.active { color: var(--accent-color); font-weight: 800; }
-        .tab-item.active i { transform: translateY(-2px); text-shadow: var(--glow-text); }
-        .tab-item i { font-size: 18px; transition: 0.2s; }
+        .tab-item.active i { transform: translateY(-3px) scale(1.1); text-shadow: var(--glow-text); }
+        .tab-item i { font-size: 20px; transition: all 0.3s ease; }
         
         .tab-pulse-yellow { color: var(--warning-color) !important; animation: pulseTab 2s infinite ease-in-out; }
-        @keyframes pulseTab { 0%, 100% { opacity: 0.7; text-shadow: none; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(241,196,15,0.6); transform: scale(1.05); } }
+        @keyframes pulseTab { 0%, 100% { opacity: 0.7; text-shadow: none; } 50% { opacity: 1; text-shadow: 0 0 10px rgba(241,196,15,0.5); transform: scale(1.05); } }
 
-        /* Убран overflow-y чтобы скроллилась вся страница целиком */
-        .tickets-wrapper { flex: 1; padding-bottom: 20px; }
-        .ticket-item { padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; background: var(--overlay-bg); transition: 0.3s; }
-        .ticket-item:hover { border-color: var(--accent-color); }
-        .ticket-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 5px; align-items: center;}
-        .ticket-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ticket-closed-badge { color: var(--danger-color); border: 1px solid var(--danger-color); padding: 2px 6px; border-radius: 4px; font-size: 9px; text-transform: uppercase; font-weight: 800; }
+        .tickets-wrapper { flex: 1; padding-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .ticket-item { padding: 16px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--overlay-bg); transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
+        .ticket-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; transition: background 0.3s ease; }
+        .ticket-item:hover { border-color: var(--accent-color); transform: translateX(4px); background: transparent; }
+        .ticket-item:hover::before { background: var(--accent-color); }
+        
+        .ticket-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 8px; align-items: center;}
+        .ticket-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.5; }
+        .ticket-closed-badge { color: var(--danger-color); border: 1px solid var(--danger-color); padding: 3px 8px; border-radius: 12px; font-size: 9px; text-transform: uppercase; font-weight: 800; background: var(--danger-bg); }
 
-        .btn-enter-chat { color: var(--success-color); border: 1px solid var(--success-color); border-radius: 4px; padding: 5px 12px; font-size: 12px; background: transparent; cursor: pointer; transition: 0.3s; }
-        .btn-enter-chat:hover { background: var(--success-bg); box-shadow: var(--success-glow); }
+        .btn-enter-chat { color: var(--success-color); border: 1px solid var(--success-color); border-radius: 6px; padding: 6px 14px; font-size: 11px; font-weight: 800; background: transparent; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-enter-chat:hover { background: var(--success-color); color: #000; box-shadow: var(--success-glow); }
         
-        .btn-icon { background: transparent; border: none; font-size: 18px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 4px;}
-        .btn-icon-default { color: var(--accent-color); border: 1px solid var(--border-color); }
-        .btn-icon-default:hover { border-color: var(--accent-color); box-shadow: var(--glow); }
+        .btn-icon { background: transparent; border: none; font-size: 16px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px;}
+        .btn-icon-default { color: var(--text-main); border: 1px solid var(--border-color); background: var(--overlay-bg); }
+        .btn-icon-default:hover { border-color: var(--accent-color); box-shadow: var(--glow); transform: scale(1.05); }
         
-        .btn-icon-yellow { color: var(--warning-color); border: 1px solid var(--warning-color); background: var(--warning-bg); }
-        .btn-icon-yellow:hover { background: var(--warning-color); color: var(--bg-color); }
+        .btn-icon-yellow { color: var(--warning-color); border: 1px solid var(--warning-color); background: transparent; }
+        .btn-icon-yellow:hover { background: var(--warning-color); color: #000; transform: scale(1.05); }
         
         .btn-icon-red { color: var(--danger-color); border: 1px solid var(--danger-color); background: transparent; }
-        .btn-icon-red:hover { background: var(--danger-bg); box-shadow: var(--danger-glow); }
+        .btn-icon-red:hover { background: var(--danger-color); color: #fff; transform: scale(1.05); }
 
-        .chat-area { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; overflow-y: auto; padding-right: 5px; padding-bottom: 10px; }
-        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 8px; font-size: 13px; position: relative; line-height: 1.4; word-break: break-word; overflow-wrap: break-word; }
-        .msg-user { align-self: flex-end; background: var(--overlay-bg); border: 1px solid var(--border-color); border-bottom-right-radius: 2px; }
-        .msg-support { align-self: flex-start; border: 1px solid var(--accent-color); border-bottom-left-radius: 2px; }
-        .msg-time { font-size: 9px; color: var(--text-muted); margin-top: 5px; text-align: right; }
-        .msg-system { align-self: center; color: var(--danger-color); font-size: 10px; font-weight: 800; border: 1px dashed var(--danger-color); padding: 4px 10px; border-radius: 4px; text-transform: uppercase; margin: 10px 0; text-align: center; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; overflow-y: auto; padding-right: 5px; padding-bottom: 15px; scroll-behavior: smooth; }
+        .msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 13px; position: relative; line-height: 1.5; word-break: break-word; overflow-wrap: break-word; animation: messagePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes messagePop { 0% { opacity: 0; transform: scale(0.9) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         
-        .support-online { color: var(--success-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--success-color); text-transform: uppercase; }
-        .support-offline { color: var(--danger-color); font-weight: 800; font-size: 11px; text-shadow: 0 0 5px var(--danger-color); text-transform: uppercase; }
+        .msg-user { align-self: flex-end; background: var(--overlay-bg); border: 1px solid var(--border-color); border-bottom-right-radius: 4px; }
+        .msg-support { align-self: flex-start; background: transparent; border: 1px solid var(--accent-color); border-bottom-left-radius: 4px; }
+        .msg-time { font-size: 9px; color: var(--text-muted); margin-top: 6px; text-align: right; opacity: 0.7; }
+        .msg-system { align-self: center; color: var(--danger-color); font-size: 9px; font-weight: 800; border: 1px dashed var(--danger-border); padding: 6px 12px; border-radius: 20px; text-transform: uppercase; margin: 15px 0; text-align: center; background: var(--danger-bg); letter-spacing: 0.5px; }
         
-        .header-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; text-transform: uppercase; text-shadow: var(--glow-text); flex-shrink: 0;}
-        .cursor-blink { display: inline-block; width: 8px; height: 18px; background: var(--accent-color); margin-left: 5px; animation: blink 1s step-end infinite; }
+        .support-online { color: var(--success-color); font-weight: 800; font-size: 10px; text-shadow: 0 0 8px rgba(0,255,0,0.4); text-transform: uppercase; letter-spacing: 1px; }
+        .support-offline { color: var(--text-muted); font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .header-logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; text-transform: uppercase; text-shadow: var(--glow-text); flex-shrink: 0; letter-spacing: -0.5px;}
+        .cursor-blink { display: inline-block; width: 10px; height: 20px; background: var(--accent-color); margin-left: 4px; animation: blink 1s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         
-        .toast { position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent-color); border: 1px solid var(--accent-color); color: var(--bg-color); padding: 10px 20px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--glow-strong); transition: transform 0.3s; z-index: 1000; pointer-events: none; }
-        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent-color); border: 1px solid var(--accent-color); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--glow-strong); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; pointer-events: none; opacity: 0; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* Стили для подсказки о скролле */
-        .scroll-hint {
-            position: fixed;
-            bottom: 140px; /* Поднял выше, чтобы не пряталась за твою увеличенную панель */
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent-color);
-            color: var(--bg-color);
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: var(--glow-strong);
-            z-index: 90;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            text-transform: uppercase;
-        }
-        .scroll-hint.show {
-            opacity: 1;
-            animation: bounceHint 1.5s infinite;
-        }
-        @keyframes bounceHint {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
-        }
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; color: var(--text-muted); opacity: 0.7; }
+        .empty-state i { font-size: 40px; margin-bottom: 15px; opacity: 0.5; }
+        .empty-state p { font-size: 12px; line-height: 1.5; }
+
+        .loader { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; border-top-color: var(--accent-color); animation: spin 1s ease-in-out infinite; margin: 20px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="dark-theme">
 
     <div id="toast" class="toast">выполнено!</div>
-    
-    <div id="scroll-hint" class="scroll-hint"><i class="fa-solid fa-chevron-down"></i> ваши тикеты</div>
 
     <div class="app-container" id="main-scroll-container">
         
         <div id="screen-main" class="screen active">
-            <div class="header-logo" style="margin-bottom: 20px;">
+            <div class="header-logo" style="margin-bottom: 25px;">
                 <i class="fa-solid fa-headset"></i><span>resonance support<span class="cursor-blink"></span></span>
             </div>
 
             <div class="card">
                 <h3>статус поддержки</h3>
                 <div id="msk-status" class="status-badge status-inactive">загрузка...</div>
-                <p class="text-muted" style="margin-top: 5px;">10:00 - 22:00 (МСК)</p>
+                <p class="text-muted" style="margin-top: 10px; font-size: 12px;">Время работы: 10:00 - 22:00 (МСК)</p>
             </div>
 
             <div class="card">
@@ -181,94 +161,108 @@
                     </select>
                 </div>
                 
-                <div id="custom-topic-box" style="display: none; margin-top: 10px;">
+                <div id="custom-topic-box" style="display: none; margin-top: 15px;">
                     <div class="input-group"><input type="text" id="custom-topic-input" placeholder="в чем именно проблема?"></div>
-                    <div id="err-topic" class="req-label">* данное поле обязательно к заполнению</div>
+                    <div id="err-topic" class="req-label">* обязательное поле</div>
                 </div>
 
-                <div class="input-group" style="margin-top: 10px;">
-                    <textarea id="ticket-msg" placeholder="опишите ситуацию подробно..."></textarea>
+                <div class="input-group" style="margin-top: 15px;">
+                    <textarea id="ticket-msg" placeholder="опишите ситуацию максимально подробно..."></textarea>
                 </div>
-                <div id="err-msg" class="req-label">* данное поле обязательно к заполнению</div>
+                <div id="err-msg" class="req-label">* обязательное поле</div>
                 
-                <button id="btn-create-ticket" class="btn-primary" onclick="submitTicket()">создать тикет</button>
+                <button id="btn-create-ticket" class="btn-primary" onclick="submitTicket()">отправить запрос</button>
             </div>
+        </div>
 
-            <h3 id="tickets-header">мои тикеты</h3>
+        <div id="screen-tickets" class="screen">
+            <div class="header-logo" style="margin-bottom: 25px;">
+                <i class="fa-solid fa-list"></i><span>мои обращения</span>
+            </div>
             <div id="user-tickets-list" class="tickets-wrapper">
-                <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
+                <div style="text-align: center; width: 100%;"><div class="loader"></div></div>
             </div>
         </div>
 
         <div id="screen-chat" class="screen">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; flex-shrink: 0;">
-                <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
                     <button class="btn-icon btn-icon-default" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
                     <div>
-                        <h3 id="chat-ticket-id" style="margin:0; text-transform: none;">#000</h3>
-                        <div id="chat-ticket-topic" style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Тема: ...</div>
+                        <h3 id="chat-ticket-id" style="margin:0; font-size: 14px; letter-spacing: 0;">#000</h3>
+                        <div id="chat-ticket-topic" style="font-size: 10px; color: var(--accent-color); margin-top: 4px; font-weight: 500;">Тема: ...</div>
                     </div>
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                    <div id="support-online-status" class="support-offline">support: offline</div>
-                    <button id="btn-close-ticket" class="btn-icon btn-icon-red" style="display: none; height: 25px; width: 30px;" onclick="closeTicket()"><i class="fa-solid fa-lock"></i></button>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                    <div id="support-online-status" class="support-offline">support offline</div>
+                    <button id="btn-close-ticket" class="btn-icon btn-icon-red" style="display: none; height: 28px; width: 32px; border-radius: 6px;" onclick="closeTicket()"><i class="fa-solid fa-lock" style="font-size: 12px;"></i></button>
                 </div>
             </div>
             
             <div id="chat-messages" class="chat-area"></div>
             
-            <div id="chat-input-container" style="flex-shrink: 0; margin-top: 10px;">
+            <div id="chat-input-container" style="flex-shrink: 0; margin-top: 15px; background: var(--bg-color);">
                 <div class="input-group">
-                    <textarea id="chat-input" placeholder="сообщение..." style="min-height: 50px;"></textarea>
+                    <textarea id="chat-input" placeholder="введите сообщение..." style="min-height: 55px; border-radius: 8px;"></textarea>
                 </div>
-                <button id="btn-send-reply" class="btn-primary" onclick="sendReply()">отправить</button>
+                <button id="btn-send-reply" class="btn-primary" style="margin-top: 10px; padding: 12px;" onclick="sendReply()">отправить ответ</button>
             </div>
-            <button id="admin-exit-btn" class="btn-primary btn-exit-chat" style="display:none; flex-shrink: 0;" onclick="adminExitChat()">выйти из чата</button>
+            <button id="admin-exit-btn" class="btn-primary btn-exit-chat" style="display:none; flex-shrink: 0; padding: 10px; margin-top: 10px;" onclick="adminExitChat()">выйти (admin)</button>
         </div>
 
         <div id="screen-admin" class="screen">
-            <div class="header-logo" style="margin-bottom: 20px;">
-                <i class="fa-solid fa-shield-halved"></i><span>admin panel<span class="cursor-blink"></span></span>
+            <div class="header-logo" style="margin-bottom: 25px;">
+                <i class="fa-solid fa-shield-halved"></i><span>панель админа</span>
             </div>
             
             <div class="card">
-                <h3>фильтры</h3>
-                <div class="input-group"><input type="text" id="admin-search" placeholder="поиск по #номеру или тексту..." oninput="loadAdminTickets()"></div>
-                <div class="input-group">
+                <h3>поиск и фильтры</h3>
+                <div class="input-group"><input type="text" id="admin-search" placeholder="поиск по номеру или тексту..." oninput="loadAdminTickets()"></div>
+                <div class="input-group" style="margin-top: 10px;">
                     <select id="admin-filter" onchange="loadAdminTickets()">
-                        <option value="all">все темы</option>
-                        <option value="Проблемы с подключением">подключение</option>
-                        <option value="Проблема с добавлением подписки">подписка</option>
-                        <option value="Не подключается VPN">vpn</option>
-                        <option value="Другое">другое</option>
+                        <option value="all">все категории</option>
+                        <option value="Проблемы с подключением">проблемы подключения</option>
+                        <option value="Проблема с добавлением подписки">ошибка подписки</option>
+                        <option value="Не подключается VPN">не работает vpn</option>
+                        <option value="Другое">прочее</option>
                     </select>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0;">
-                <h3 style="margin: 0;">все обращения</h3>
-                <button class="btn-icon btn-icon-red" onclick="deleteAllTickets()"><i class="fa-solid fa-trash"></i></button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;">
+                <h3 style="margin: 0; font-size: 14px;">база обращений</h3>
+                <button class="btn-icon btn-icon-red" style="width: 32px; height: 32px; border-radius: 6px;" onclick="deleteAllTickets()"><i class="fa-solid fa-trash-can" style="font-size: 14px;"></i></button>
             </div>
             <div id="admin-tickets-list" class="tickets-wrapper">
-                <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
+                <div style="text-align: center; width: 100%;"><div class="loader"></div></div>
             </div>
         </div>
         
         <div id="screen-instructions" class="screen">
-            <div class="header-logo" style="margin-bottom: 20px;">
-                <i class="fa-solid fa-book"></i><span>инструкции<span class="cursor-blink"></span></span>
+            <div class="header-logo" style="margin-bottom: 25px;">
+                <i class="fa-solid fa-book"></i><span>база знаний</span>
             </div>
-            <p class="text-muted" style="text-align: center; margin-top: 50px;">Здесь будут инструкции...</p>
+            <div class="empty-state">
+                <i class="fa-solid fa-file-circle-question"></i>
+                <p>Раздел инструкций находится в разработке.<br>Скоро здесь появятся гайды по настройке.</p>
+            </div>
         </div>
 
     </div>
 
     <div class="tab-bar">
-        <div class="tab-item active" id="tab-tickets" onclick="switchTab('main', this)"><i class="fa-solid fa-ticket"></i><span>тикеты</span></div>
-        <div class="tab-item" id="tab-instructions" onclick="switchTab('instructions', this)">
-            <i class="fa-solid fa-book tab-pulse-yellow"></i><span class="tab-pulse-yellow">инструкции</span>
+        <div class="tab-item active" id="tab-main" onclick="switchTab('main', this)">
+            <i class="fa-solid fa-house"></i><span>главная</span>
         </div>
-        <div class="tab-item" id="tab-admin" onclick="switchTab('admin', this)" style="display: none;"><i class="fa-solid fa-user-shield"></i><span>админ</span></div>
+        <div class="tab-item" id="tab-tickets" onclick="switchTab('tickets', this)">
+            <i class="fa-solid fa-list-check"></i><span>тикеты</span>
+        </div>
+        <div class="tab-item" id="tab-instructions" onclick="switchTab('instructions', this)">
+            <i class="fa-solid fa-book tab-pulse-yellow"></i><span class="tab-pulse-yellow">гайды</span>
+        </div>
+        <div class="tab-item" id="tab-admin" onclick="switchTab('admin', this)" style="display: none;">
+            <i class="fa-solid fa-user-shield"></i><span>админ</span>
+        </div>
     </div>
 
 <script>
@@ -293,49 +287,25 @@
         
         checkSupportTime(); setInterval(checkSupportTime, 60000);
         loadUserTickets();
-
-        // Слушатель скролла для показа/скрытия подсказки
-        document.getElementById('main-scroll-container').addEventListener('scroll', checkScrollHint);
     });
-
-    // Логика управления подсказкой скролла
-    function checkScrollHint() {
-        const container = document.getElementById('main-scroll-container');
-        const mainScreen = document.getElementById('screen-main');
-        const hint = document.getElementById('scroll-hint');
-        const ticketsHeader = document.getElementById('tickets-header');
-
-        if (!mainScreen.classList.contains('active') || !ticketsHeader) {
-            hint.classList.remove('show');
-            return;
-        }
-
-        // Вычисляем, виден ли заголовок "мои тикеты"
-        const scrollBottom = container.scrollTop + container.clientHeight;
-        
-        // Если заголовок ниже видимой области (с небольшим запасом), показываем подсказку
-        if (ticketsHeader.offsetTop > scrollBottom - 10) {
-            hint.classList.add('show');
-        } else {
-            hint.classList.remove('show');
-        }
-    }
 
     function checkSupportTime() {
         const badge = document.getElementById('msk-status');
         const now = new Date();
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const hour = new Date(utc + (3600000 * 3)).getHours();
-        if (hour >= 10 && hour < 22) { badge.textContent = 'активна'; badge.className = 'status-badge status-active'; } 
-        else { badge.textContent = 'неактивна'; badge.className = 'status-badge status-inactive'; }
+        if (hour >= 10 && hour < 22) { badge.textContent = 'online'; badge.className = 'status-badge status-active'; } 
+        else { badge.textContent = 'offline'; badge.className = 'status-badge status-inactive'; }
     }
 
     function handleTopicChange() {
         const select = document.getElementById('topic-select');
         const customBox = document.getElementById('custom-topic-box');
-        if (select.value === 'Другое') customBox.style.display = 'block';
+        if (select.value === 'Другое') {
+            customBox.style.display = 'block';
+            customBox.style.animation = 'fadeIn 0.3s ease';
+        }
         else { customBox.style.display = 'none'; document.getElementById('err-topic').classList.remove('pulse-error'); }
-        setTimeout(checkScrollHint, 100); // Проверяем скролл после изменения высоты
     }
 
     function triggerPulseError(id) {
@@ -350,11 +320,11 @@
         const btn = document.getElementById(btnId);
         let timeLeft = 10;
         btn.disabled = true;
-        const originalText = btnId === 'btn-create-ticket' ? 'создать тикет' : 'отправить';
+        const originalText = btnId === 'btn-create-ticket' ? 'отправить запрос' : 'отправить ответ';
         
         const timer = setInterval(() => {
             timeLeft--;
-            btn.innerText = `подождите ${timeLeft}с...`;
+            btn.innerText = `ждите ${timeLeft}с...`;
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 isCooldown = false;
@@ -373,7 +343,7 @@
         const textArea = document.getElementById('ticket-msg');
         
         let topic = select.value;
-        if (!topic) return showToast('выберите тему');
+        if (!topic) return showToast('выберите тему обращения');
         if (topic === 'Другое') {
             topic = customInput.value.trim();
             if (!topic) return triggerPulseError('err-topic');
@@ -397,26 +367,25 @@
                 return;
             }
             
-            showToast('тикет создан'); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            showToast('обращение создано'); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             select.value = ''; customInput.value = ''; textArea.value = ''; handleTopicChange();
             
             startCooldownTimer('btn-create-ticket');
-            loadUserTickets(); openChat(data.ticket_id, topic);
+            loadUserTickets(); 
+            openChat(data.ticket_id, topic);
         } catch (e) { showToast('ошибка сервера'); }
     }
 
     async function loadUserTickets() {
         const cont = document.getElementById('user-tickets-list');
-        if (currentUserId === 0) return cont.innerHTML = '<p class="text-muted" style="text-align: center;">Для тестов: добавьте ?id=123 в URL</p>';
+        if (currentUserId === 0) return cont.innerHTML = '<div class="empty-state"><i class="fa-solid fa-code"></i><p>Режим разработки<br>добавьте ?id=123 в URL</p></div>';
         try {
             const res = await fetch(`${API_URL}/user_tickets/${currentUserId}`);
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             renderTickets(data, 'user-tickets-list', false);
-            setTimeout(checkScrollHint, 200); // Проверяем скролл после загрузки тикетов
         } catch (e) { 
-            console.error(e);
-            cont.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 11px;">Нет связи с сервером. Повторите позже.</p>'; 
+            cont.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger-color);"></i><p>Ошибка соединения с сервером.</p></div>'; 
         }
     }
 
@@ -428,42 +397,43 @@
             const res = await fetch(`${API_URL}/admin_tickets?search=${encodeURIComponent(q)}&filter=${encodeURIComponent(f)}`);
             if (!res.ok) throw new Error('Network error');
             renderTickets(await res.json(), 'admin-tickets-list', true);
-        } catch (e) { cont.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 11px;">Нет связи с сервером.</p>'; }
+        } catch (e) { cont.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger-color);"></i><p>Ошибка соединения.</p></div>'; }
     }
 
     function renderTickets(tickets, containerId, isAdmin) {
         const container = document.getElementById(containerId);
-        if (tickets.length === 0) return container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 20px 0;">список пуст</p>';
+        if (tickets.length === 0) return container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>У вас пока нет активных обращений.<br>Создайте тикет на главной.</p></div>';
+        
         container.innerHTML = tickets.map(t => {
             const date = new Date(t.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            let statusBadge = t.status === 'closed' ? '<span class="ticket-closed-badge">тикет закрыт</span>' : '';
+            let statusBadge = t.status === 'closed' ? '<span class="ticket-closed-badge">закрыт</span>' : '';
             let actions = '';
             
             if (isAdmin) {
                 actions = `
-                <button class="btn-icon btn-icon-yellow" onclick="deleteTicket(${t.id})"><i class="fa-solid fa-trash"></i></button>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-icon btn-icon-default" onclick="openChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-eye"></i></button>
-                    <button class="btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-arrow-right-to-bracket"></i> войти</button>
+                <button class="btn-icon btn-icon-yellow" style="width:30px; height:30px;" onclick="deleteTicket(${t.id}, event)"><i class="fa-solid fa-trash" style="font-size:12px;"></i></button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}', event)"><i class="fa-solid fa-arrow-right-to-bracket"></i> войти</button>
                 </div>`;
             } else {
-                actions = `<button class="btn-icon btn-icon-default" onclick="openChat(${t.id}, '${t.topic}')"><i class="fa-solid fa-eye"></i></button>`;
+                actions = `<i class="fa-solid fa-chevron-right" style="color:var(--text-muted); opacity:0.5; font-size:14px;"></i>`;
             }
 
             return `
-            <div class="ticket-item">
+            <div class="ticket-item" onclick="openChat(${t.id}, '${t.topic}')">
                 <div class="ticket-header">
-                    <div><span style="color:var(--text-main);">#${t.id}</span> ${statusBadge}</div>
+                    <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--text-main); font-size:13px;">#${t.id}</span> ${statusBadge}</div>
                     <span style="font-weight:normal;color:var(--text-muted);">${date}</span>
                 </div>
-                <div style="font-size: 11px; margin-bottom: 5px; color: var(--accent-color);">${t.topic}</div>
-                <div class="ticket-preview">${t.preview || '...'}</div>
-                <div style="display:flex; justify-content:${isAdmin ? 'space-between' : 'flex-end'}; align-items:center; margin-top:10px;">${actions}</div>
+                <div style="font-size: 12px; margin-bottom: 6px; color: var(--accent-color); font-weight: 500;">${t.topic}</div>
+                <div class="ticket-preview">${t.preview || 'Откройте чтобы прочитать...'}</div>
+                <div style="display:flex; justify-content:${isAdmin ? 'space-between' : 'flex-end'}; align-items:center; margin-top:12px; border-top:1px solid rgba(255,255,255,0.05); padding-top:10px;">${actions}</div>
             </div>`;
         }).join('');
     }
 
-    async function deleteTicket(id) {
+    async function deleteTicket(id, e) {
+        if(e) e.stopPropagation();
         if(!confirm("Удалить тикет?")) return;
         try {
             await fetch(`${API_URL}/ticket/${id}`, {method: 'DELETE'});
@@ -472,16 +442,16 @@
     }
 
     async function deleteAllTickets() {
-        if(!confirm("Удалить ВСЕ тикеты? Это действие необратимо.")) return;
+        if(!confirm("Удалить ВСЕ тикеты? Это необратимо.")) return;
         try {
             await fetch(`${API_URL}/tickets/all`, {method: 'DELETE'});
-            loadAdminTickets(); showToast('все тикеты удалены');
+            loadAdminTickets(); showToast('база очищена');
         } catch (e) { showToast('ошибка'); }
     }
 
     async function openChat(id, topic) {
         currentActiveTicketId = id;
-        document.getElementById('chat-ticket-id').innerText = '#' + id;
+        document.getElementById('chat-ticket-id').innerText = 'тикет #' + id;
         if(topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
         
         document.getElementById('btn-close-ticket').style.display = (currentUserId === ADMIN_ID) ? 'flex' : 'none';
@@ -493,7 +463,8 @@
         chatInterval = setInterval(refreshChat, 3000);
     }
 
-    async function adminEnterChat(id, topic) {
+    async function adminEnterChat(id, topic, e) {
+        if(e) e.stopPropagation();
         try { await fetch(`${API_URL}/admin_enter/${id}`, {method: 'POST'}); openChat(id, topic); } catch (e) {}
     }
 
@@ -505,10 +476,10 @@
     }
 
     async function closeTicket() {
-        if(!confirm("Закрыть тикет? Юзер больше не сможет писать.")) return;
+        if(!confirm("Заблокировать тикет? Юзер больше не сможет писать.")) return;
         try {
             await fetch(`${API_URL}/close/${currentActiveTicketId}`, {method: 'POST'});
-            refreshChat(); showToast('тикет закрыт');
+            refreshChat(); showToast('тикет заблокирован');
         } catch (e) { showToast('ошибка'); }
     }
 
@@ -522,34 +493,38 @@
             
             const statusEl = document.getElementById('support-online-status');
             if (data.admin_online) {
-                statusEl.textContent = 'support: online'; statusEl.className = 'support-online';
+                statusEl.textContent = 'agent online'; statusEl.className = 'support-online';
             } else {
-                statusEl.textContent = 'support: offline'; statusEl.className = 'support-offline';
+                statusEl.textContent = 'agent offline'; statusEl.className = 'support-offline';
             }
             
             const inputCont = document.getElementById('chat-input-container');
             const inp = document.getElementById('chat-input');
             const btn = document.getElementById('btn-send-reply');
             if (data.status === 'closed') {
-                inp.disabled = true; btn.disabled = true; inp.placeholder = "Тикет закрыт...";
+                inp.disabled = true; btn.disabled = true; inp.placeholder = "Диалог закрыт администратором...";
                 document.getElementById('btn-close-ticket').style.display = 'none';
             } else {
-                if(!isCooldown) { inp.disabled = false; btn.disabled = false; inp.placeholder = "сообщение..."; }
+                if(!isCooldown) { inp.disabled = false; btn.disabled = false; inp.placeholder = "введите сообщение..."; }
                 if(currentUserId === ADMIN_ID) document.getElementById('btn-close-ticket').style.display = 'flex';
             }
 
             const container = document.getElementById('chat-messages');
             const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
 
-            container.innerHTML = data.messages.map(m => {
-                if (m.sender_id === 0) return `<div class="msg-system">${m.text}</div>`;
-                const isMine = m.sender_id === currentUserId;
-                const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                return `
-                <div class="msg-bubble ${isMine ? 'msg-user' : 'msg-support'}">
-                    ${m.text}<div class="msg-time">${time}</div>
-                </div>`;
-            }).join('');
+            if (data.messages.length === 0) {
+                 container.innerHTML = '<div class="empty-state" style="padding-top:20px;"><i class="fa-regular fa-comments"></i><p>Опишите вашу проблему, агент скоро ответит.</p></div>';
+            } else {
+                container.innerHTML = data.messages.map(m => {
+                    if (m.sender_id === 0) return `<div class="msg-system">${m.text}</div>`;
+                    const isMine = m.sender_id === currentUserId;
+                    const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    return `
+                    <div class="msg-bubble ${isMine ? 'msg-user' : 'msg-support'}">
+                        ${m.text}<div class="msg-time">${time}</div>
+                    </div>`;
+                }).join('');
+            }
             
             if (isAtBottom) container.scrollTop = container.scrollHeight;
         } catch (e) {}
@@ -577,20 +552,42 @@
     function goBack() {
         if(chatInterval) clearInterval(chatInterval);
         currentActiveTicketId = null;
-        switchTab(currentUserId === ADMIN_ID ? 'admin' : 'main', document.getElementById(currentUserId === ADMIN_ID ? 'tab-admin' : 'tab-tickets'));
+        switchTab(currentUserId === ADMIN_ID ? 'admin' : 'tickets', document.getElementById(currentUserId === ADMIN_ID ? 'tab-admin' : 'tab-tickets'));
     }
 
     function switchTab(id, el) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        if(el) { document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
-        document.getElementById('screen-' + id).classList.add('active');
+        // Прячем все экраны
+        document.querySelectorAll('.screen').forEach(s => {
+            s.style.opacity = '0';
+            s.style.transform = 'translateX(-10px)';
+            setTimeout(() => s.classList.remove('active'), 300); // Ждем конца анимации
+        });
+        
+        // Меняем активную вкладку в меню
+        if(el) { 
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); 
+            el.classList.add('active'); 
+        }
+        
+        // Показываем нужный экран с задержкой
+        setTimeout(() => {
+            const activeScreen = document.getElementById('screen-' + id);
+            activeScreen.classList.add('active');
+            // Маленький таймаут чтобы браузер успел применить display:flex перед анимацией прозрачности
+            setTimeout(() => {
+                activeScreen.style.opacity = '1';
+                activeScreen.style.transform = 'translateX(0)';
+            }, 10);
+        }, 300);
+
+        // Загружаем данные если нужно
         if(id === 'admin') loadAdminTickets();
-        if(id === 'main') loadUserTickets();
-        setTimeout(checkScrollHint, 100); // Обновляем подсказку при смене вкладки
+        if(id === 'tickets') loadUserTickets();
     }
 
     function showToast(msg) {
         const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         setTimeout(() => t.classList.remove('show'), 2000);
     }
 </script>
