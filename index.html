@@ -276,6 +276,7 @@
     let currentActiveTicketId = null;
     let chatInterval = null;
     let isCooldown = false;
+    let lastRenderedMessages = "";
 
     document.addEventListener('DOMContentLoaded', () => {
         tg.ready(); tg.expand();
@@ -451,6 +452,7 @@
 
     async function openChat(id, topic) {
         currentActiveTicketId = id;
+        lastRenderedMessages = "";
         document.getElementById('chat-ticket-id').innerText = 'тикет #' + id;
         if(topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
         
@@ -483,7 +485,7 @@
         } catch (e) { showToast('ошибка'); }
     }
 
-    async function refreshChat() {
+async function refreshChat() {
         if (!currentActiveTicketId) return;
         try {
             const res = await fetch(`${API_URL}/chat/${currentActiveTicketId}`);
@@ -512,10 +514,12 @@
             const container = document.getElementById('chat-messages');
             const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
 
+            // Формируем новый HTML в памяти
+            let newHtml = "";
             if (data.messages.length === 0) {
-                 container.innerHTML = '<div class="empty-state" style="padding-top:20px;"><i class="fa-regular fa-comments"></i><p>Опишите вашу проблему, агент скоро ответит.</p></div>';
+                 newHtml = '<div class="empty-state" style="padding-top:20px;"><i class="fa-regular fa-comments"></i><p>Опишите вашу проблему, агент скоро ответит.</p></div>';
             } else {
-                container.innerHTML = data.messages.map(m => {
+                newHtml = data.messages.map(m => {
                     if (m.sender_id === 0) return `<div class="msg-system">${m.text}</div>`;
                     const isMine = m.sender_id === currentUserId;
                     const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -526,7 +530,12 @@
                 }).join('');
             }
             
-            if (isAtBottom) container.scrollTop = container.scrollHeight;
+            // ОБНОВЛЯЕМ ТОЛЬКО ЕСЛИ ЕСТЬ ИЗМЕНЕНИЯ (чтобы анимация не прыгала каждые 3 сек)
+            if (newHtml !== lastRenderedMessages) {
+                container.innerHTML = newHtml;
+                lastRenderedMessages = newHtml;
+                if (isAtBottom) container.scrollTop = container.scrollHeight;
+            }
         } catch (e) {}
     }
 
