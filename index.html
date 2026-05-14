@@ -29,7 +29,6 @@
         .app-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth; }
         .app-container::after { content: ""; display: block; min-height: 120px; flex-shrink: 0; }
         
-        /* Анимация переходов между экранами */
         .screen { display: none; opacity: 0; transform: translateX(20px); flex-direction: column; flex: 1; transition: all 0.3s ease; }
         .screen.active { display: flex; opacity: 1; transform: translateX(0); }
         
@@ -52,16 +51,9 @@
         @keyframes pulseError { from { opacity: 0.4; transform: scale(1); } to { opacity: 1; transform: scale(1.02); text-shadow: 0 0 5px red; } }
 
         .btn-primary { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); border-radius: 8px; padding: 15px; width: 100%; font-size: 14px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 15px; transition: all 0.3s ease; flex-shrink: 0; position: relative; overflow: hidden; }
-        .btn-primary::after { content: ''; position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255, 255, 255, 0.5); opacity: 0; border-radius: 100%; transform: scale(1, 1) translate(-50%); transform-origin: 50% 50%; }
-        .btn-primary:focus:not(:active)::after { animation: ripple 1s ease-out; }
-        @keyframes ripple { 0% { transform: scale(0, 0); opacity: 0.5; } 100% { transform: scale(100, 100); opacity: 0; } }
-        
         .btn-primary:hover:not(:disabled) { background: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-strong); letter-spacing: 1px; }
         .btn-primary:active:not(:disabled) { transform: scale(0.97); }
         .btn-primary:disabled { border-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; opacity: 0.5; }
-        
-        .btn-exit-chat { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); }
-        .btn-exit-chat:hover { background: var(--danger-color); color: var(--bg-color); box-shadow: 0 0 15px rgba(255,68,68,0.4); }
 
         .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid; transition: all 0.3s ease; }
         .status-badge::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; }
@@ -103,19 +95,21 @@
         .btn-icon-yellow:hover { background: var(--warning-color); color: #000; transform: scale(1.05); }
         
         .btn-icon-red { color: var(--danger-color); border: 1px solid var(--danger-color); background: transparent; }
-        .btn-icon-red:hover { background: var(--danger-color); color: #fff; transform: scale(1.05); }
+        .btn-icon-red:hover { background: var(--danger-bg); box-shadow: var(--danger-glow); }
 
         .chat-area { flex: 1; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; overflow-y: auto; padding-right: 5px; padding-bottom: 15px; scroll-behavior: smooth; }
-        .msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 13px; position: relative; line-height: 1.5; word-break: break-word; overflow-wrap: break-word; animation: messagePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 13px; position: relative; word-break: break-word; overflow-wrap: break-word; animation: messagePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 4px; }
+        .msg-text { line-height: 1.4; white-space: pre-wrap; padding-bottom: 2px; }
+        
         @keyframes messagePop { 0% { opacity: 0; transform: scale(0.9) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         
         .msg-user { align-self: flex-end; background: var(--overlay-bg); border: 1px solid var(--border-color); border-bottom-right-radius: 4px; }
         .msg-support { align-self: flex-start; background: transparent; border: 1px solid var(--accent-color); border-bottom-left-radius: 4px; }
-        .msg-time { font-size: 9px; color: var(--text-muted); margin-top: 6px; text-align: right; opacity: 0.7; }
+        .msg-time { font-size: 9px; color: var(--text-muted); text-align: right; opacity: 0.7; align-self: flex-end; }
         .msg-system { align-self: center; color: var(--danger-color); font-size: 9px; font-weight: 800; border: 1px dashed var(--danger-border); padding: 6px 12px; border-radius: 20px; text-transform: uppercase; margin: 15px 0; text-align: center; background: var(--danger-bg); letter-spacing: 0.5px; }
         
-        .support-online { color: var(--success-color); font-weight: 800; font-size: 10px; text-shadow: 0 0 8px rgba(0,255,0,0.4); text-transform: uppercase; letter-spacing: 1px; }
-        .support-offline { color: var(--text-muted); font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .support-online { color: var(--success-color); font-weight: 800; font-size: 10px; text-shadow: 0 0 8px rgba(0,255,0,0.4); text-transform: uppercase; letter-spacing: 1px; display: block; }
+        .support-offline { color: var(--text-muted); font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; display: block; }
         
         .header-logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; text-transform: uppercase; text-shadow: var(--glow-text); flex-shrink: 0; letter-spacing: -0.5px;}
         .cursor-blink { display: inline-block; width: 10px; height: 20px; background: var(--accent-color); margin-left: 4px; animation: blink 1s step-end infinite; }
@@ -194,8 +188,11 @@
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                    <div id="support-online-status" class="support-offline">support offline</div>
-                    <button id="btn-close-ticket" class="btn-icon btn-icon-red" style="display: none; height: 28px; width: 32px; border-radius: 6px;" onclick="closeTicket()"><i class="fa-solid fa-lock" style="font-size: 12px;"></i></button>
+                    <div id="support-online-status" class="support-offline" style="display: block;">support offline</div>
+                    <div style="display: flex; gap: 6px;">
+                        <button id="btn-admin-exit" class="btn-icon btn-icon-red" style="display: none; height: 28px; width: auto; padding: 0 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;" onclick="adminExitChat()"><i class="fa-solid fa-person-walking-arrow-right" style="margin-right: 5px;"></i> выйти</button>
+                        <button id="btn-close-ticket" class="btn-icon btn-icon-red" style="display: none; height: 28px; width: 32px; border-radius: 6px;" onclick="closeTicket()"><i class="fa-solid fa-lock" style="font-size: 12px;"></i></button>
+                    </div>
                 </div>
             </div>
             
@@ -207,7 +204,6 @@
                 </div>
                 <button id="btn-send-reply" class="btn-primary" style="margin-top: 10px; padding: 12px;" onclick="sendReply()">отправить ответ</button>
             </div>
-            <button id="admin-exit-btn" class="btn-primary btn-exit-chat" style="display:none; flex-shrink: 0; padding: 10px; margin-top: 10px;" onclick="adminExitChat()">выйти (admin)</button>
         </div>
 
         <div id="screen-admin" class="screen">
@@ -276,7 +272,8 @@
     let currentActiveTicketId = null;
     let chatInterval = null;
     let isCooldown = false;
-    let lastRenderedMessages = "";
+    let lastRenderedMessages = ""; 
+    let isAdminViewing = false; // Флаг режима просмотра для админа
 
     document.addEventListener('DOMContentLoaded', () => {
         tg.ready(); tg.expand();
@@ -373,7 +370,7 @@
             
             startCooldownTimer('btn-create-ticket');
             loadUserTickets(); 
-            openChat(data.ticket_id, topic);
+            userOpenChat(data.ticket_id, topic);
         } catch (e) { showToast('ошибка сервера'); }
     }
 
@@ -414,6 +411,7 @@
                 actions = `
                 <button class="btn-icon btn-icon-yellow" style="width:30px; height:30px;" onclick="deleteTicket(${t.id}, event)"><i class="fa-solid fa-trash" style="font-size:12px;"></i></button>
                 <div style="display:flex; gap:8px;">
+                    <button class="btn-icon btn-icon-default" style="width:auto; padding: 0 12px; font-size: 11px; text-transform: uppercase; font-weight: 800;" onclick="adminViewChat(${t.id}, '${t.topic}', event)"><i class="fa-solid fa-eye" style="margin-right: 5px;"></i> просмотр</button>
                     <button class="btn-enter-chat" onclick="adminEnterChat(${t.id}, '${t.topic}', event)"><i class="fa-solid fa-arrow-right-to-bracket"></i> войти</button>
                 </div>`;
             } else {
@@ -421,7 +419,7 @@
             }
 
             return `
-            <div class="ticket-item" onclick="openChat(${t.id}, '${t.topic}')">
+            <div class="ticket-item" onclick="${isAdmin ? '' : `userOpenChat(${t.id}, '${t.topic}')`}">
                 <div class="ticket-header">
                     <div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--text-main); font-size:13px;">#${t.id}</span> ${statusBadge}</div>
                     <span style="font-weight:normal;color:var(--text-muted);">${date}</span>
@@ -450,24 +448,36 @@
         } catch (e) { showToast('ошибка'); }
     }
 
-    async function openChat(id, topic) {
+    // Открытие чата для пользователя
+    function userOpenChat(id, topic) {
+        isAdminViewing = false; 
+        initChatUI(id, topic);
+    }
+
+    // Админ нажал "Просмотр"
+    function adminViewChat(id, topic, e) {
+        if(e) e.stopPropagation();
+        isAdminViewing = true;
+        initChatUI(id, topic);
+    }
+
+    // Админ нажал "Войти"
+    async function adminEnterChat(id, topic, e) {
+        if(e) e.stopPropagation();
+        isAdminViewing = false;
+        try { await fetch(`${API_URL}/admin_enter/${id}`, {method: 'POST'}); initChatUI(id, topic); } catch (e) {}
+    }
+
+    async function initChatUI(id, topic) {
         currentActiveTicketId = id;
-        lastRenderedMessages = "";
+        lastRenderedMessages = ""; 
         document.getElementById('chat-ticket-id').innerText = 'тикет #' + id;
         if(topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + topic;
-        
-        document.getElementById('btn-close-ticket').style.display = (currentUserId === ADMIN_ID) ? 'flex' : 'none';
-        document.getElementById('admin-exit-btn').style.display = (currentUserId === ADMIN_ID) ? 'block' : 'none';
         
         switchTab('chat', null);
         await refreshChat();
         if(chatInterval) clearInterval(chatInterval);
         chatInterval = setInterval(refreshChat, 3000);
-    }
-
-    async function adminEnterChat(id, topic, e) {
-        if(e) e.stopPropagation();
-        try { await fetch(`${API_URL}/admin_enter/${id}`, {method: 'POST'}); openChat(id, topic); } catch (e) {}
     }
 
     async function adminExitChat() {
@@ -485,7 +495,7 @@
         } catch (e) { showToast('ошибка'); }
     }
 
-async function refreshChat() {
+    async function refreshChat() {
         if (!currentActiveTicketId) return;
         try {
             const res = await fetch(`${API_URL}/chat/${currentActiveTicketId}`);
@@ -494,27 +504,49 @@ async function refreshChat() {
             if(data.topic) document.getElementById('chat-ticket-topic').innerText = 'Тема: ' + data.topic;
             
             const statusEl = document.getElementById('support-online-status');
-            if (data.admin_online) {
-                statusEl.textContent = 'agent online'; statusEl.className = 'support-online';
-            } else {
-                statusEl.textContent = 'agent offline'; statusEl.className = 'support-offline';
-            }
-            
             const inputCont = document.getElementById('chat-input-container');
-            const inp = document.getElementById('chat-input');
-            const btn = document.getElementById('btn-send-reply');
-            if (data.status === 'closed') {
-                inp.disabled = true; btn.disabled = true; inp.placeholder = "Диалог закрыт администратором...";
-                document.getElementById('btn-close-ticket').style.display = 'none';
+            const btnClose = document.getElementById('btn-close-ticket');
+            const btnExit = document.getElementById('btn-admin-exit');
+
+            // Скрываем элементы, если админ в режиме просмотра
+            if (isAdminViewing) {
+                statusEl.style.display = 'none';
+                inputCont.style.display = 'none';
+                btnClose.style.display = 'none';
+                btnExit.style.display = 'none';
             } else {
-                if(!isCooldown) { inp.disabled = false; btn.disabled = false; inp.placeholder = "введите сообщение..."; }
-                if(currentUserId === ADMIN_ID) document.getElementById('btn-close-ticket').style.display = 'flex';
+                statusEl.style.display = 'block';
+                inputCont.style.display = 'block';
+                
+                // Статус агента (показываем и админу, и юзеру, если не режим просмотра)
+                if (data.admin_online) {
+                    statusEl.textContent = 'agent online'; statusEl.className = 'support-online';
+                } else {
+                    statusEl.textContent = 'agent offline'; statusEl.className = 'support-offline';
+                }
+
+                if(currentUserId === ADMIN_ID) {
+                    btnClose.style.display = 'block';
+                    btnExit.style.display = 'block';
+                } else {
+                    btnClose.style.display = 'none';
+                    btnExit.style.display = 'none';
+                }
+
+                // Логика блокировки поля ввода
+                const inp = document.getElementById('chat-input');
+                const btn = document.getElementById('btn-send-reply');
+                if (data.status === 'closed') {
+                    inp.disabled = true; btn.disabled = true; inp.placeholder = "Диалог закрыт администратором...";
+                    btnClose.style.display = 'none';
+                } else {
+                    if(!isCooldown) { inp.disabled = false; btn.disabled = false; inp.placeholder = "введите сообщение..."; }
+                }
             }
 
             const container = document.getElementById('chat-messages');
             const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
 
-            // Формируем новый HTML в памяти
             let newHtml = "";
             if (data.messages.length === 0) {
                  newHtml = '<div class="empty-state" style="padding-top:20px;"><i class="fa-regular fa-comments"></i><p>Опишите вашу проблему, агент скоро ответит.</p></div>';
@@ -525,12 +557,12 @@ async function refreshChat() {
                     const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     return `
                     <div class="msg-bubble ${isMine ? 'msg-user' : 'msg-support'}">
-                        ${m.text}<div class="msg-time">${time}</div>
+                        <div class="msg-text">${m.text}</div>
+                        <div class="msg-time">${time}</div>
                     </div>`;
                 }).join('');
             }
             
-            // ОБНОВЛЯЕМ ТОЛЬКО ЕСЛИ ЕСТЬ ИЗМЕНЕНИЯ (чтобы анимация не прыгала каждые 3 сек)
             if (newHtml !== lastRenderedMessages) {
                 container.innerHTML = newHtml;
                 lastRenderedMessages = newHtml;
@@ -561,35 +593,31 @@ async function refreshChat() {
     function goBack() {
         if(chatInterval) clearInterval(chatInterval);
         currentActiveTicketId = null;
+        isAdminViewing = false;
         switchTab(currentUserId === ADMIN_ID ? 'admin' : 'tickets', document.getElementById(currentUserId === ADMIN_ID ? 'tab-admin' : 'tab-tickets'));
     }
 
     function switchTab(id, el) {
-        // Прячем все экраны
         document.querySelectorAll('.screen').forEach(s => {
             s.style.opacity = '0';
             s.style.transform = 'translateX(-10px)';
-            setTimeout(() => s.classList.remove('active'), 300); // Ждем конца анимации
+            setTimeout(() => s.classList.remove('active'), 300); 
         });
         
-        // Меняем активную вкладку в меню
         if(el) { 
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active')); 
             el.classList.add('active'); 
         }
         
-        // Показываем нужный экран с задержкой
         setTimeout(() => {
             const activeScreen = document.getElementById('screen-' + id);
             activeScreen.classList.add('active');
-            // Маленький таймаут чтобы браузер успел применить display:flex перед анимацией прозрачности
             setTimeout(() => {
                 activeScreen.style.opacity = '1';
                 activeScreen.style.transform = 'translateX(0)';
             }, 10);
         }, 300);
 
-        // Загружаем данные если нужно
         if(id === 'admin') loadAdminTickets();
         if(id === 'tickets') loadUserTickets();
     }
