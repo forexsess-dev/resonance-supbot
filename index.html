@@ -26,10 +26,17 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'JetBrains Mono', monospace; text-transform: lowercase !important; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        .app-container { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; display: flex; flex-direction: column; }
+        /* Исправлен скролл здесь */
+        .app-container { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; display: flex; flex-direction: column; position: relative; }
         
-        .screen { display: none; animation: fadeIn 0.3s ease; flex-direction: column; height: 100%; }
+        .screen { display: none; animation: fadeIn 0.3s ease; flex-direction: column; flex: 1; }
         .screen.active { display: flex; }
+        
+        /* Экраны теперь могут растягиваться по высоте контента */
+        #screen-main, #screen-admin, #screen-instructions { min-height: 100%; height: auto; }
+        /* А чат остается строго по размеру окна, чтобы поле ввода было внизу */
+        #screen-chat { height: 100%; }
+
         @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
         
         h3 { font-weight: 700; margin-bottom: 15px; text-transform: uppercase; }
@@ -67,7 +74,8 @@
         .tab-pulse-yellow { color: var(--warning-color) !important; animation: pulseTab 2s infinite ease-in-out; }
         @keyframes pulseTab { 0%, 100% { opacity: 0.7; text-shadow: none; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(241,196,15,0.6); transform: scale(1.05); } }
 
-        .tickets-wrapper { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+        /* Убран overflow-y чтобы скроллилась вся страница целиком */
+        .tickets-wrapper { flex: 1; padding-bottom: 20px; }
         .ticket-item { padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; background: var(--overlay-bg); transition: 0.3s; }
         .ticket-item:hover { border-color: var(--accent-color); }
         .ticket-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 5px; align-items: center;}
@@ -103,13 +111,46 @@
         
         .toast { position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--accent-color); border: 1px solid var(--accent-color); color: var(--bg-color); padding: 10px 20px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: var(--glow-strong); transition: transform 0.3s; z-index: 1000; pointer-events: none; }
         .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Стили для подсказки о скролле */
+        .scroll-hint {
+            position: fixed;
+            bottom: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-color);
+            color: var(--bg-color);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--glow-strong);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            text-transform: uppercase;
+        }
+        .scroll-hint.show {
+            opacity: 1;
+            animation: bounceHint 1.5s infinite;
+        }
+        @keyframes bounceHint {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
     </style>
 </head>
 <body class="dark-theme">
 
     <div id="toast" class="toast">выполнено!</div>
+    
+    <div id="scroll-hint" class="scroll-hint"><i class="fa-solid fa-chevron-down"></i> ваши тикеты</div>
 
-    <div class="app-container">
+    <div class="app-container" id="main-scroll-container">
         
         <div id="screen-main" class="screen active">
             <div class="header-logo" style="margin-bottom: 20px;">
@@ -147,7 +188,7 @@
                 <button id="btn-create-ticket" class="btn-primary" onclick="submitTicket()">создать тикет</button>
             </div>
 
-            <h3>мои тикеты</h3>
+            <h3 id="tickets-header">мои тикеты</h3>
             <div id="user-tickets-list" class="tickets-wrapper">
                 <p class="text-muted" style="text-align: center; padding: 20px 0;">загрузка...</p>
             </div>
@@ -234,7 +275,7 @@
     
     let currentActiveTicketId = null;
     let chatInterval = null;
-    let isCooldown = false; // Блокировка от спама
+    let isCooldown = false;
 
     document.addEventListener('DOMContentLoaded', () => {
         tg.ready(); tg.expand();
@@ -246,7 +287,33 @@
         
         checkSupportTime(); setInterval(checkSupportTime, 60000);
         loadUserTickets();
+
+        // Слушатель скролла для показа/скрытия подсказки
+        document.getElementById('main-scroll-container').addEventListener('scroll', checkScrollHint);
     });
+
+    // Логика управления подсказкой скролла
+    function checkScrollHint() {
+        const container = document.getElementById('main-scroll-container');
+        const mainScreen = document.getElementById('screen-main');
+        const hint = document.getElementById('scroll-hint');
+        const ticketsHeader = document.getElementById('tickets-header');
+
+        if (!mainScreen.classList.contains('active') || !ticketsHeader) {
+            hint.classList.remove('show');
+            return;
+        }
+
+        // Вычисляем, виден ли заголовок "мои тикеты"
+        const scrollBottom = container.scrollTop + container.clientHeight;
+        
+        // Если заголовок ниже видимой области (с небольшим запасом), показываем подсказку
+        if (ticketsHeader.offsetTop > scrollBottom - 10) {
+            hint.classList.add('show');
+        } else {
+            hint.classList.remove('show');
+        }
+    }
 
     function checkSupportTime() {
         const badge = document.getElementById('msk-status');
@@ -262,6 +329,7 @@
         const customBox = document.getElementById('custom-topic-box');
         if (select.value === 'Другое') customBox.style.display = 'block';
         else { customBox.style.display = 'none'; document.getElementById('err-topic').classList.remove('pulse-error'); }
+        setTimeout(checkScrollHint, 100); // Проверяем скролл после изменения высоты
     }
 
     function triggerPulseError(id) {
@@ -270,7 +338,6 @@
         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
     }
 
-    // Анимация таймера кд
     function startCooldownTimer(btnId) {
         if (currentUserId === ADMIN_ID) return;
         isCooldown = true;
@@ -340,6 +407,7 @@
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             renderTickets(data, 'user-tickets-list', false);
+            setTimeout(checkScrollHint, 200); // Проверяем скролл после загрузки тикетов
         } catch (e) { 
             console.error(e);
             cont.innerHTML = '<p style="text-align: center; color: var(--danger-color); font-size: 11px;">Нет связи с сервером. Повторите позже.</p>'; 
@@ -512,6 +580,7 @@
         document.getElementById('screen-' + id).classList.add('active');
         if(id === 'admin') loadAdminTickets();
         if(id === 'main') loadUserTickets();
+        setTimeout(checkScrollHint, 100); // Обновляем подсказку при смене вкладки
     }
 
     function showToast(msg) {
